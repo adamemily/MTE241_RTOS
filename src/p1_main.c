@@ -1,10 +1,15 @@
 //Include function header
 #include "_threadsCore.h"
 
+//Include kernelCore header
+#include "_kernelCore.h"
+
 //This file contains relevant pin and other settings 
 #include <LPC17xx.h>
+
 //This file is for printf and other IO functions
 #include "stdio.h"
+
 //this file sets up the UART
 #include "uart.h"
 
@@ -23,6 +28,9 @@ int main( void )
 	
 	setThreadingWithPSP(getNewThreadStack(512));
 		
+
+	kernelInit();
+	osSched();
 	//Your code should always terminate in an endless loop if it is done. If you don't
 	//the processor will enter a hardfault and will be weird
 	while(1);
