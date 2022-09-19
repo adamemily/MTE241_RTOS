@@ -28,9 +28,10 @@ int main( void )
 	
 	setThreadingWithPSP(getNewThreadStack(512));
 		
-
+	/*
 	kernelInit();
 	osSched();
+	*/
 	//Your code should always terminate in an endless loop if it is done. If you don't
 	//the processor will enter a hardfault and will be weird
 	while(1);
