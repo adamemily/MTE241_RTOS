@@ -11,8 +11,8 @@ int main( void )
 	printf("Running L-OS-S...\r\n");
 	
 	setThreadingWithPSP(getNewThreadStack(512));
-	kernelInit();
-	osSched();
+	//kernelInit();
+	//osSched();
 	
 	while(1);
 }
