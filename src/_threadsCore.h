@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <LPC17xx.h>
 
-//uint32_t max_stack = 0x2000;
 
 uint32_t* getMSPInitialLocation (void); //Obtains the initial location of MSP by looking it up in the vector table
 
