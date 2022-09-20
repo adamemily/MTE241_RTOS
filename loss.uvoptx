@@ -160,6 +160,22 @@
           <ExecCommand></ExecCommand>
           <Expression>\\tim\src/svc_call.s\5</Expression>
         </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>17</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>2464</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>\ecfile1.uwaterloo.ca\e2adam\My Documents\GitHub\MTE241_RTOS\src\p1_main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\tim\src/p1_main.c\17</Expression>
+        </Bp>
       </Breakpoint>
       <Tracepoint>
         <THDelay>0</THDelay>
