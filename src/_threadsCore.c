@@ -1,8 +1,9 @@
 #include "_threadsCore.h"
+#include "osDefs.h"
 
 //global variables
-const uint32_t MAX_STACK = 0x2000;
 int numStacks = 0;
+threadStruct threadArray[MAX_THREADS];
 
 //obtain the initial location of MSP by looking it up in the vector table
 uint32_t* getMSPInitialLocation (void){
@@ -40,4 +41,13 @@ uint32_t* getNewThreadStack (uint32_t offset){
 void setThreadingWithPSP (uint32_t* threadStack){
 	__set_PSP((uint32_t) threadStack);
 	__set_CONTROL(1<<1);
+}
+
+
+int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add to array
+	threadStruct thread_node;
+	*--sp = 1 << 24;
+	
+	
+	return 0;
 }
