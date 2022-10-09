@@ -29,34 +29,44 @@ Project File Date:  09/30/2022
 Rebuild target 'Target 1'
 compiling Retarget.c...
 compiling p1_main.c...
-src\_threadsCore.h(18): warning:  #1-D: last line of file ends without a newline
+src\_threadsCore.h(16): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_kernelCore.h(15): warning:  #1-D: last line of file ends without a newline
+src\_kernelCore.h(13): warning:  #1295-D: Deprecated declaration osKernelStart - give arg types
+  bool osKernelStart(); //start running the kernel, i.e. the OS
+src\_kernelCore.h(19): warning:  #1-D: last line of file ends without a newline
   #endif
-src\osDefs.h(20): warning:  #1-D: last line of file ends without a newline
+src\osDefs.h(26): warning:  #1-D: last line of file ends without a newline
   #endif
-src\p1_main.c: 3 warnings, 0 errors
+src\p1_main.c: 4 warnings, 0 errors
 compiling uart.c...
 assembling svc_call.s...
 compiling _threadsCore.c...
-src\_threadsCore.h(18): warning:  #1-D: last line of file ends without a newline
+src\_threadsCore.h(16): warning:  #1-D: last line of file ends without a newline
   #endif
-src\osDefs.h(20): warning:  #1-D: last line of file ends without a newline
+src\osDefs.h(26): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_threadsCore.c(69): warning:  #1-D: last line of file ends without a newline
-  }*/
+src\_threadsCore.c(98): warning:  #1-D: last line of file ends without a newline
+  }
 src\_threadsCore.c: 3 warnings, 0 errors
 assembling startup_LPC17xx.s...
 compiling _kernelCore.c...
-src\_kernelCore.h(15): warning:  #1-D: last line of file ends without a newline
+src\_kernelCore.h(13): warning:  #1295-D: Deprecated declaration osKernelStart - give arg types
+  bool osKernelStart(); //start running the kernel, i.e. the OS
+src\_kernelCore.h(19): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_kernelCore.c(10): warning:  #1-D: last line of file ends without a newline
+src\osDefs.h(26): warning:  #1-D: last line of file ends without a newline
+  #endif
+src\_kernelCore.c(23): warning:  #940-D: missing return statement at end of non-void function "osKernelStart" 
   }
-src\_kernelCore.c: 2 warnings, 0 errors
+src\_kernelCore.c(36): warning:  #1-D: last line of file ends without a newline
+  }
+src\_kernelCore.c(36): warning:  #940-D: missing return statement at end of non-void function "task_switch" 
+  }
+src\_kernelCore.c: 6 warnings, 0 errors
 compiling system_LPC17xx.c...
 linking...
-Program Size: Code=2570 RO-data=294 RW-data=56 ZI-data=16608  
-".\Objects\tim.axf" - 0 Error(s), 8 Warning(s).
+Program Size: Code=2552 RO-data=296 RW-data=56 ZI-data=16608  
+".\Objects\tim.axf" - 0 Error(s), 13 Warning(s).
 
 <h2>Software Packages used:</h2>
 

@@ -4,7 +4,7 @@
 //global variables
 uint32_t* endOfStack_ptr = NULL;
 int numStacks = 0;
-threadStruct threadArray[MAX_THREADS];
+threadStruct threadCollection[MAX_THREADS];
 
 //obtain the initial location of MSP by looking it up in the vector table
 uint32_t* getMSPInitialLocation (void){
@@ -37,7 +37,7 @@ uint32_t* getNewThreadStack (uint32_t offset){
 	}
 	
 	//check if overwriting a previous stack
-	if(PSP_adr > (uint32_t) endOfStack_ptr){
+	if(PSP_adr > (uint32_t) endOfStack_ptr-(STACK_SIZE)){
 		printf("ERROR: Overwriting old data");
 		return NULL; 
 	}
@@ -58,10 +58,41 @@ void setThreadingWithPSP (uint32_t* threadStack){
 }
 
 
-/*int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add to array
-	threadStruct thread_node;
-	*--sp = 1 << 24;
+int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add to array
+	int stackID = numStacks-1;
+	threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE);
 	
+	//if there is an error creating the thread pointer, return w error
+	if(threadCollection[stackID].TSP == NULL){
+		return -1;
+	}
+	
+	threadCollection[stackID].fun_ptr = fun_ptr;
+	threadCollection[stackID].priority = numStacks; //round robin priority
+		
+	//set the values for what the "running" thread will populate the registers with
+	*(--threadCollection[stackID].TSP) = 1<<24; //xPSR
+	*(--threadCollection[stackID].TSP) = (uint32_t) fun_ptr; //PC (program counter)
+	
+		//dummy values (need to be nonzero)
+		*(--threadCollection[stackID].TSP) = 0xE; //LR
+		*(--threadCollection[stackID].TSP) = 0xC; //R12
+		*(--threadCollection[stackID].TSP) = 0x3; //R3
+		*(--threadCollection[stackID].TSP) = 0x2; //R2
+		*(--threadCollection[stackID].TSP) = 0x1; //R1
+		*(--threadCollection[stackID].TSP) = 0x0; //R0
+	
+		//dummy values (for testing purposes)
+		*(--threadCollection[stackID].TSP) = 0xB; //R11
+		*(--threadCollection[stackID].TSP) = 0xA; //R10
+		*(--threadCollection[stackID].TSP) = 0x9; //R9
+		*(--threadCollection[stackID].TSP) = 0x8; //R8
+		*(--threadCollection[stackID].TSP) = 0x7; //R7
+		*(--threadCollection[stackID].TSP) = 0x6; //R6
+		*(--threadCollection[stackID].TSP) = 0x5; //R5
+		*(--threadCollection[stackID].TSP) = 0x4; //R4
+	
+	threadCollection[stackID].readyStatus = WAITING;
 	
 	return 0;
-}*/
+}
