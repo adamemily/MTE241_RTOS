@@ -9,7 +9,7 @@
 int main( void ) 
 {
 	SystemInit();
-	printf("Running L-OS-S...\r\n");
+	printf("\nRunning L-OS-S...\r\n");
 	
 	setThreadingWithPSP(getNewThreadStack(STACK_SIZE));
 	
@@ -18,6 +18,6 @@ int main( void )
 	
 	osSched();
 	
-	printf("here");
+	printf(">program end");
 	while(1);
 }

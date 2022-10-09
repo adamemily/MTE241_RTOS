@@ -14,6 +14,7 @@ typedef struct{
 	//store stack pointer, store function pointer
 	uint32_t* TSP;
 	void (*fun_ptr)(void);
+	int priority;
 } threadStruct;
 
 #endif

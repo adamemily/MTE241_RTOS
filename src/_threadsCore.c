@@ -2,6 +2,7 @@
 #include "osDefs.h"
 
 //global variables
+uint32_t* endOfStack_ptr = NULL;
 int numStacks = 0;
 threadStruct threadArray[MAX_THREADS];
 
@@ -9,6 +10,10 @@ threadStruct threadArray[MAX_THREADS];
 uint32_t* getMSPInitialLocation (void){
 	uint32_t* MSP_ptr = (uint32_t*) 0x0; //define a pointer to a pointer that points to initial MSP
 	printf("%08x\n", *MSP_ptr);
+	if(endOfStack_ptr == NULL){ //only allow endOfStack_ptr to be set to initial MSP location once
+		endOfStack_ptr = (uint32_t*) *MSP_ptr;
+	}
+	
 	return (uint32_t*) *MSP_ptr; //dereference so that it returns just the pointer to initial MSP
 }
 
@@ -17,7 +22,8 @@ uint32_t* getNewThreadStack (uint32_t offset){
 	//check if we are exceeding the max stack size
 	if (MAX_STACK < offset*(numStacks+1)){
 		printf("ERROR: Offset too large");
-		return NULL; //make sure to look for a NULL return in future functions to check if getNewThreadStack failed or not
+		return NULL; 
+			//make sure to look for a NULL return in future functions to check if getNewThreadStack failed or not
 	}
 	++numStacks;
 	
@@ -30,9 +36,17 @@ uint32_t* getNewThreadStack (uint32_t offset){
 		PSP_adr = PSP_adr+sizeof(uint32_t); //add 4 to address to ensure valid address for the stack
 	}
 	
+	//check if overwriting a previous stack
+	if(PSP_adr > (uint32_t) endOfStack_ptr){
+		printf("ERROR: Overwriting old data");
+		return NULL; 
+	}
+	
 	//assign PSP_ptr to point to PSP_adr
 	uint32_t* PSP_ptr = (uint32_t*) PSP_adr;
 	printf("%08x\n", (uint32_t) PSP_ptr);
+	endOfStack_ptr = PSP_ptr;
+	
 	return PSP_ptr;
 }
 
@@ -44,10 +58,10 @@ void setThreadingWithPSP (uint32_t* threadStack){
 }
 
 
-int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add to array
+/*int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add to array
 	threadStruct thread_node;
 	*--sp = 1 << 24;
 	
 	
 	return 0;
-}
+}*/
