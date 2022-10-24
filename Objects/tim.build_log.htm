@@ -45,7 +45,7 @@ src\_threadsCore.h(16): warning:  #1-D: last line of file ends without a newline
   #endif
 src\osDefs.h(26): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_threadsCore.c(98): warning:  #1-D: last line of file ends without a newline
+src\_threadsCore.c(105): warning:  #1-D: last line of file ends without a newline
   }
 src\_threadsCore.c: 3 warnings, 0 errors
 assembling startup_LPC17xx.s...
@@ -56,17 +56,13 @@ src\_kernelCore.h(19): warning:  #1-D: last line of file ends without a newline
   #endif
 src\osDefs.h(26): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_kernelCore.c(23): warning:  #940-D: missing return statement at end of non-void function "osKernelStart" 
+src\_kernelCore.c(42): warning:  #1-D: last line of file ends without a newline
   }
-src\_kernelCore.c(36): warning:  #1-D: last line of file ends without a newline
-  }
-src\_kernelCore.c(36): warning:  #940-D: missing return statement at end of non-void function "task_switch" 
-  }
-src\_kernelCore.c: 6 warnings, 0 errors
+src\_kernelCore.c: 4 warnings, 0 errors
 compiling system_LPC17xx.c...
 linking...
-Program Size: Code=2552 RO-data=296 RW-data=56 ZI-data=16608  
-".\Objects\tim.axf" - 0 Error(s), 13 Warning(s).
+Program Size: Code=3360 RO-data=296 RW-data=64 ZI-data=16848  
+".\Objects\tim.axf" - 0 Error(s), 11 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -93,10 +89,10 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE:5.5.0
 
    * Component: Keil::Device:Startup:1.0.0
+      Include file:  Device\Include\LPC17xx.h
       Include file:  RTE_Driver\Config\RTE_Device.h
       Source file:   Device\Source\ARM\startup_LPC17xx.s
       Source file:   Device\Source\system_LPC17xx.c
-      Include file:  Device\Include\LPC17xx.h
 Build Time Elapsed:  00:00:01
 </pre>
 </body>
