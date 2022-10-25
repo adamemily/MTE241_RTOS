@@ -11,6 +11,8 @@
 void kernelInit(void); //initialize memory structures and interrupts necessary to run the kernel
 
 bool osKernelStart(); //start running the kernel, i.e. the OS
+
+void osLoadFirst(); //called by the kernel to load the very first thread, before getting into context switching
 	 
 void osSched(void); //called by the kernel to schedule which threads to run
 

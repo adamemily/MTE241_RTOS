@@ -85,7 +85,6 @@ int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add 
 		*(--threadCollection[stackID].TSP) = 0x2; //R2
 		*(--threadCollection[stackID].TSP) = 0x1; //R1
 		*(--threadCollection[stackID].TSP) = 0x0; //R0
-		printf("TEST: %08x\n", (uint32_t) threadCollection[0].TSP);
 
 	
 		//dummy values (for testing purposes)
@@ -97,6 +96,7 @@ int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add 
 		*(--threadCollection[stackID].TSP) = 0x6; //R6
 		*(--threadCollection[stackID].TSP) = 0x5; //R5
 		*(--threadCollection[stackID].TSP) = 0x4; //R4
+		printf("TSP AFTER POPULATION: %08x\n", (uint32_t) threadCollection[0].TSP);
 		
 	
 	threadCollection[stackID].readyStatus = WAITING;

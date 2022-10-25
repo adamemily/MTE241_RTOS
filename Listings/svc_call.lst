@@ -30,14 +30,15 @@ ARM Macro Assembler    Page 1
                         pushes we did before
    19 00000014 E8B0 0FF0       LDMIA            r0!,{r4-r11}
    20 00000018         
-   21 00000018         ;Reload PSP. Now that we've popped a bunch, PSP has to b
+   21 00000018         
+   22 00000018         ;Reload PSP. Now that we've popped a bunch, PSP has to b
                        e updated
-   22 00000018 F380 8809       MSR              PSP,r0
-   23 0000001C         
-   24 0000001C         ;return
-   25 0000001C 4770            BX               LR
-   26 0000001E         
-   27 0000001E                 END
+   23 00000018 F380 8809       MSR              PSP,r0
+   24 0000001C         
+   25 0000001C         ;return
+   26 0000001C 4770            BX               LR
+   27 0000001E         
+   28 0000001E                 END
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\svc_call.d -o.\objects\svc_call.o -I.\RTE\Device\LPC1768
  -I.\RTE\_Target_1 -IC:\Software\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\In
