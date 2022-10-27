@@ -12,10 +12,10 @@ void kernelInit(void); //initialize memory structures and interrupts necessary t
 
 bool osKernelStart(); //start running the kernel, i.e. the OS
 
-void osLoadFirst(); //called by the kernel to load the very first thread, before getting into context switching
+void osLoadFirst(); //called by the kernel to start running the very first thread, before getting into context switching
 	 
-void osSched(void); //called by the kernel to schedule which threads to run
+void osSched(void); //called by the kernel to schedule the next thread to run and call the context switcher
 
-int task_switch(void); //switch PSP, called in svc_call.s
+int task_switch(void); //called by the PendSV interrupt to set PSP to the next thread scheduled to run
 
 #endif

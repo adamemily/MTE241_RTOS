@@ -1,28 +1,29 @@
 	AREA	handle_pend,CODE,READONLY
-	EXTERN task_switch ;I am going to call a C function to handle the switching
+	EXTERN task_switch 
 	GLOBAL PendSV_Handler
 	PRESERVE8
 PendSV_Handler
-	
+		;Load PSP into r0
 		MRS r0,PSP
 		
-		;Store the registers
+		;Store the registers, decrementing in memory from the address stored in r0
 		STMDB r0!,{r4-r11}
 		
-		;call kernel task switch
+		;Call kernel task switch
 		BL task_switch
 		
-		MRS r0,PSP ;this is the new task stack
+		;Load into r0 the updated PSP, belonging to the new thread to run
+		MRS r0,PSP
 		MOV LR,#0xFFFFFFFD ;magic return value to get us back to Thread mode
 		
-		;LoaD Multiple Increment After, basically undo the stack pushes we did before
+		;LoaD Multiple Increment After. Load the context stored in the memory locations above the address stored in r0
 		LDMIA r0!,{r4-r11}
 		
 		
-		;Reload PSP. Now that we've popped a bunch, PSP has to be updated
+		;Set PSP to the final location of r0
 		MSR PSP,r0
 		
-		;return
+		;Return
 		BX LR
 
 		END

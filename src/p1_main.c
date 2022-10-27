@@ -1,23 +1,30 @@
-#include "_threadsCore.h" //include threadsCore header
-#include "_kernelCore.h" //include kernelCore header
-#include "osDefs.h" //include osDefs header
+//inclusion of headers
+#include "_threadsCore.h" 
+#include "_kernelCore.h" 
+#include "osDefs.h" 
 
+//inclusion of libraries
 #include <LPC17xx.h>
 #include "stdio.h"
 #include "uart.h"
 #include "LED.h"
 
+//global variables
 int thread1Call = 0;
 int thread2Call = 0;
 int thread3Call = 0;
+//test constants
+const int TEST_RANGE = 3000;
+const int TEST_INTERVAL1 = 1000;
+const int TEST_INTERVAL2 = 2000;
 
-
+//thread functions
 void thread1(){
 	while(1){
 		thread1Call++;
 		
 		//turn on LED 1 but keep others off
-		if ((thread1Call % 3000) <= 1000){
+		if ((thread1Call % TEST_RANGE) <= TEST_INTERVAL1){
 			printf("This is a pause");
 
 			LED_set(1);
@@ -25,7 +32,7 @@ void thread1(){
 			LED_clear(5);
 		}
 	
-		osSched();
+		osSched(); //call yield/scheduler function
 	}
 }
 
@@ -34,13 +41,13 @@ void thread2(){
 		thread2Call++;
 		
 		//turn on LED 3 but keep others off
-		if ((thread1Call % 3000) > 1000 && (thread1Call % 3000) <= 2000){
+		if ((thread1Call % TEST_RANGE) > TEST_INTERVAL1 && (thread1Call % TEST_RANGE) <= TEST_INTERVAL2){
 			printf("This is a pause");
 			LED_clear(1);
 			LED_set(3);
 			LED_clear(5);
 		}
-		osSched();
+		osSched(); //call yield/scheduler function
 	}
 }
 
@@ -49,13 +56,13 @@ void thread3(){
 		thread3Call++;
 		
 		//turn on LED 5 but keep others off
-		if ((thread1Call % 3000) > 2000){
+		if ((thread1Call % TEST_RANGE) > TEST_INTERVAL2){
 			printf("This is a pause");
 			LED_clear(1);
 			LED_clear(3);
 			LED_set(5);
 		}
-		osSched();
+		osSched(); //call yield/scheduler function
 	}
 }
 
@@ -64,24 +71,21 @@ int main( void )
 	SystemInit();
 	printf("\nRunning L-OS-S...\r\n");
 	
+	//LED initialization (set directions to output, start with all LEDs turned off)
 	LED_setup();
-	LED_clear(0);
-	LED_clear(1);
-	LED_clear(2);
-	LED_clear(3);
-	LED_clear(4);
-	LED_clear(5);
-	LED_clear(6);
-	LED_clear(7);
-	
-	// Initialize the kernel
+	for(int i = 0; i < 7; i++){
+		LED_clear(i);
+	}
+
+	//Initialize the kernel
 	kernelInit();
 
+	//Initialize each thread
 	osThreadNew(thread1);
 	osThreadNew(thread2);
 	osThreadNew(thread3);
 
-	
+	//Start running the threads
 	osKernelStart();
 	
 	printf("L-OS-S is lost (done)");

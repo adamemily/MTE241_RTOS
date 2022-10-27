@@ -5,40 +5,39 @@ ARM Macro Assembler    Page 1
 
 
     1 00000000                 AREA             handle_pend,CODE,READONLY
-    2 00000000                 EXTERN           task_switch ;I am going to call
-                                                             a C function to ha
-                                                            ndle the switching
+    2 00000000                 EXTERN           task_switch
     3 00000000                 GLOBAL           PendSV_Handler
     4 00000000                 PRESERVE8
     5 00000000         PendSV_Handler
-    6 00000000         
+    6 00000000         ;Load PSP into r0
     7 00000000 F3EF 8009       MRS              r0,PSP
     8 00000004         
-    9 00000004         ;Store the registers
+    9 00000004         ;Store the registers, decrementing in memory from the ad
+                       dress stored in r0
    10 00000004 E920 0FF0       STMDB            r0!,{r4-r11}
    11 00000008         
-   12 00000008         ;call kernel task switch
+   12 00000008         ;Call kernel task switch
    13 00000008 F7FF FFFE       BL               task_switch
    14 0000000C         
-   15 0000000C F3EF 8009       MRS              r0,PSP      ;this is the new ta
-                                                            sk stack
-   16 00000010 F06F 0E02       MOV              LR,#0xFFFFFFFD ;magic return va
+   15 0000000C         ;Load into r0 the updated PSP, belonging to the new thre
+                       ad to run
+   16 0000000C F3EF 8009       MRS              r0,PSP
+   17 00000010 F06F 0E02       MOV              LR,#0xFFFFFFFD ;magic return va
                                                             lue to get us back 
                                                             to Thread mode
-   17 00000014         
-   18 00000014         ;LoaD Multiple Increment After, basically undo the stack
-                        pushes we did before
-   19 00000014 E8B0 0FF0       LDMIA            r0!,{r4-r11}
-   20 00000018         
+   18 00000014         
+   19 00000014         ;LoaD Multiple Increment After. Load the context stored 
+                       in the memory locations above the address stored in r0
+   20 00000014 E8B0 0FF0       LDMIA            r0!,{r4-r11}
    21 00000018         
-   22 00000018         ;Reload PSP. Now that we've popped a bunch, PSP has to b
-                       e updated
-   23 00000018 F380 8809       MSR              PSP,r0
-   24 0000001C         
-   25 0000001C         ;return
-   26 0000001C 4770            BX               LR
-   27 0000001E         
-   28 0000001E                 END
+   22 00000018         
+   23 00000018         ;Set PSP to the final location of r0
+   24 00000018 F380 8809       MSR              PSP,r0
+   25 0000001C         
+   26 0000001C         ;Return
+   27 0000001C 4770            BX               LR
+   28 0000001E         
+   29 0000001E                 END
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\svc_call.d -o.\objects\svc_call.o -I.\RTE\Device\LPC1768
  -I.\RTE\_Target_1 -IC:\Software\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\In

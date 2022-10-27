@@ -5,12 +5,12 @@
 #include <LPC17xx.h>
 
 //function prototypes
-uint32_t* getMSPInitialLocation (void); //Obtains the initial location of MSP by looking it up in the vector table
+uint32_t* getMSPInitialLocation (void); //obtains the initial location of MSP by looking it up in the vector table
 
-uint32_t* getNewThreadStack (uint32_t offset); //Returns address of new a PSP with offset of "offset" bytes from MSP.
+uint32_t* getNewThreadStack (uint32_t offset); //returns address of new a PSP with offset of "offset" bytes from MSP.
 
-void setThreadingWithPSP (uint32_t* threadStack); // Sets the value of PSP to threadStack and ensures that the microcontroller is using that value by changing the CONTROL register
+//void setThreadingWithPSP (uint32_t* threadStack); // sets the value of PSP to threadStack and ensures that the microcontroller is using that value by changing the CONTROL register
 
-int osThreadNew(void (*fun_ptr)(void)); //allocate memory for thread stack, add to array
+int osThreadNew(void (*fun_ptr)(void)); //initializes the thread stack and its initial context in memory
 
 #endif

@@ -25,11 +25,10 @@ uint32_t* getNewThreadStack (uint32_t offset){
 		return NULL; 
 			//make sure to look for a NULL return in future functions to check if getNewThreadStack failed or not
 	}
-	//++numThreads;
 	
 	//calculate address of PSP from MSP
 	uint32_t* MSP_ptr = getMSPInitialLocation();
-	uint32_t PSP_adr = (uint32_t) MSP_ptr - offset; //do arithemtic in integers
+	uint32_t PSP_adr = (uint32_t) MSP_ptr - offset;
 	
 	//check if PSP address is a number divisible by 8
 	if(PSP_adr%8 != 0){
@@ -51,29 +50,30 @@ uint32_t* getNewThreadStack (uint32_t offset){
 }
 
 
-//set the value of PSP to threadStack and ensure that the microcontroller is using that value by changing the CONTROL register
-void setThreadingWithPSP (uint32_t* threadStack){
+//LAB 1: set the value of PSP to threadStack and ensure that the microcontroller is using that value by changing the CONTROL register
+/*void setThreadingWithPSP (uint32_t* threadStack){
 	__set_PSP((uint32_t) threadStack);
 	__set_CONTROL(1<<1);
-}
+}*/
 
 
-int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add to array
+//Initializes the thread stack and its initial context in memory
+int osThreadNew(void (*fun_ptr)(void)){
 	++numThreads;
-	
 	int stackID = numThreads-1;
-	printf("Stack ID: %d\n", stackID);
+
+	//generate and store TSP
 	threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //MSP stack + n*thread stacks
-	printf("TSP: %08x\n", (uint32_t) threadCollection[stackID].TSP);
 	
-	//if there is an error creating the thread pointer, return w/ error
+	//if getnewThreadStack encounters an error creating the thread pointer, TSP generated will be a NULL pointer
 	if(threadCollection[stackID].TSP == NULL){
-		return -1;
+		--numThreads;
+		return -1; //osThreadNew failed
 	}
 	
+	//store the thread's function pointer
 	threadCollection[stackID].fun_ptr = fun_ptr;
-	//threadCollection[stackID].priority = numThreads; //ignore
-		
+
 	//set the values for what the "running" thread will populate the registers with
 	*(--threadCollection[stackID].TSP) = 1<<24; //xPSR
 	*(--threadCollection[stackID].TSP) = (uint32_t) fun_ptr; //PC (program counter)
@@ -85,7 +85,6 @@ int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add 
 		*(--threadCollection[stackID].TSP) = 0x2; //R2
 		*(--threadCollection[stackID].TSP) = 0x1; //R1
 		*(--threadCollection[stackID].TSP) = 0x0; //R0
-
 	
 		//dummy values (for testing purposes)
 		*(--threadCollection[stackID].TSP) = 0xB; //R11
@@ -96,10 +95,6 @@ int osThreadNew(void (*fun_ptr)(void)){ //allocate memory for thread stack, add 
 		*(--threadCollection[stackID].TSP) = 0x6; //R6
 		*(--threadCollection[stackID].TSP) = 0x5; //R5
 		*(--threadCollection[stackID].TSP) = 0x4; //R4
-		printf("TSP AFTER POPULATION: %08x\n", (uint32_t) threadCollection[0].TSP);
-		
-	
-	threadCollection[stackID].readyStatus = WAITING;
 	
 	return 0;
 }
