@@ -10,10 +10,20 @@
 #define STACK_SIZE 512
 #define MAX_THREADS ((MAX_STACK - STACK_SIZE)/STACK_SIZE)
 
+#define ACTIVE 0
+#define WAITING 1
+#define SLEEPING 2
+
 //define thread struct
 typedef struct{
 	uint32_t* TSP; //store thread stack pointer
 	void (*fun_ptr)(void); //store thread's function pointer
+	
+	int status; 
+	int priority;
+	int timeSlice; //add thread-specific SysTick time divisor
+	
+	uint32_t* nextInList;
 } threadStruct;
 
 #endif

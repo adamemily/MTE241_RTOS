@@ -23,6 +23,9 @@ void thread1(){
 	while(1){
 		thread1Call++;
 		
+		printf("Running thread 1. Call count: %d\n", thread1Call);
+		
+		/*
 		//turn on LED 1 but keep others off
 		if ((thread1Call % TEST_RANGE) <= TEST_INTERVAL1){
 			printf("This is a pause");
@@ -31,15 +34,18 @@ void thread1(){
 			LED_clear(3);
 			LED_clear(5);
 		}
+		*/
 	
-		osSched(); //call yield/scheduler function
+		osYield(); //call yield/scheduler function
 	}
 }
 
 void thread2(){
 	while(1){
 		thread2Call++;
-		
+		printf("Running thread 2. Call count: %d\n", thread2Call);
+
+		/*
 		//turn on LED 3 but keep others off
 		if ((thread1Call % TEST_RANGE) > TEST_INTERVAL1 && (thread1Call % TEST_RANGE) <= TEST_INTERVAL2){
 			printf("This is a pause");
@@ -47,29 +53,35 @@ void thread2(){
 			LED_set(3);
 			LED_clear(5);
 		}
-		osSched(); //call yield/scheduler function
+		*/
+		
+		osYield(); //call yield/scheduler function
 	}
 }
 
 void thread3(){
 	while(1){
 		thread3Call++;
-		
+		printf("Running thread 3. Call count: %d\n", thread3Call);
+
+		/*
 		//turn on LED 5 but keep others off
 		if ((thread1Call % TEST_RANGE) > TEST_INTERVAL2){
-			printf("This is a pause");
+			printf("This is a pause HEHEHEHEHE");
 			LED_clear(1);
 			LED_clear(3);
 			LED_set(5);
 		}
-		osSched(); //call yield/scheduler function
+		*/
+		
+		osYield(); //call yield/scheduler function
 	}
 }
 
 int main( void ) 
 {
 	SystemInit();
-	printf("\nRunning L-OS-S...\r\n");
+	//printf("\nRunning L-OS-S...\r\n");
 	
 	//LED initialization (set directions to output, start with all LEDs turned off)
 	LED_setup();
@@ -81,9 +93,11 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1);
-	osThreadNew(thread2);
-	osThreadNew(thread3);
+	osThreadNew(thread1, 1, 200);
+	osThreadNew(thread2, 2, 200);
+	osThreadNew(thread3, 3, 200);
+	
+	SysTick_Config(SystemCoreClock/10);
 
 	//Start running the threads
 	osKernelStart();

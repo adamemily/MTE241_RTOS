@@ -31,19 +31,39 @@ void osLoadFirst(){
 }
 
 //schedule the next thread to run and call the context switcher
-void osSched(void){ 
+void osYield(void){ 
 	//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
-	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-16*4);
+	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-17*4);
 	
+	//call scheduler
+	scheduler();
+
+	ICSR |= 1<<28;
+	__asm("isb");
+}
+
+void scheduler(void){
 	//cycle through the threads in the thread struct array
 	if (numThreads > 1){
 		threadCurr = (threadCurr+1)%numThreads;
+		//printf("%d\n",threadCurr);
 	}
+}
+
+
+void SysTick_Handler(void){
+	printf("SUSSY TICK CALLED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.\n");
+	
+	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
+	
+	//call scheduler 
+	scheduler();
 	
 	//call context switching routine, which will use a PSP to a new thread when it starts loading in register contents (updated threadCurr)
 	ICSR |= 1<<28;
 	__asm("isb");
 }
+
 
 int task_switch(void){
 	//set PSP to the thread we want to start running
