@@ -20,10 +20,9 @@ typedef struct{
 	void (*fun_ptr)(void); //store thread's function pointer
 	
 	int status; 
-	int priority;
 	int timeSlice; //add thread-specific SysTick time divisor
-	
-	uint32_t* nextInList;
+	int sleepTimer;
+
 } threadStruct;
 
 #endif

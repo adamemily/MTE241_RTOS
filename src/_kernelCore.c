@@ -1,9 +1,12 @@
 #include "_kernelCore.h"
 #include "osDefs.h"
 
+//global variables
 extern threadStruct threadCollection[MAX_THREADS];
 extern int numThreads;
 int threadCurr = 0;
+
+uint32_t* chad = NULL;
 
 //set priority of the PendSV interrupt
 void kernelInit(void){
@@ -25,7 +28,6 @@ bool osKernelStart(){
 
 //start running the first thread, which will lead into context switching between all the threads
 void osLoadFirst(){
-	//call context switching routine, while leaving PSP set to the first thread so that it ends up running (threadCurr stays equal to 0)
 		ICSR |= 1<<28;
 		__asm("isb");
 }
@@ -43,6 +45,11 @@ void osYield(void){
 }
 
 void scheduler(void){
+	//check status: if next thread in round robin is active, proceed! else, look at next thread
+		//once proceeded: update statuses, update chad pointer
+	//if no threads are active, use idle thread
+	
+	
 	//cycle through the threads in the thread struct array
 	if (numThreads > 1){
 		threadCurr = (threadCurr+1)%numThreads;
@@ -50,18 +57,19 @@ void scheduler(void){
 	}
 }
 
-
 void SysTick_Handler(void){
-	printf("SUSSY TICK CALLED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.\n");
+	printf("SUSSY TICK CALLED ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.\n");
+	//decrement all timers, timeslice and sleeptimer
 	
-	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
+	//to add: if timeslice of running thread is up, do the following
+		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
 	
-	//call scheduler 
-	scheduler();
-	
-	//call context switching routine, which will use a PSP to a new thread when it starts loading in register contents (updated threadCurr)
-	ICSR |= 1<<28;
-	__asm("isb");
+		//call scheduler 
+		scheduler();
+		
+		//call context switching routine, which will use a PSP to a new thread when it starts loading in register contents (updated threadCurr)
+		ICSR |= 1<<28;
+		__asm("isb");
 }
 
 

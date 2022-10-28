@@ -93,9 +93,9 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, 1, 200);
-	osThreadNew(thread2, 2, 200);
-	osThreadNew(thread3, 3, 200);
+	osThreadNew(thread1, 200);
+	osThreadNew(thread2, 200);
+	osThreadNew(thread3, 200);
 	
 	SysTick_Config(SystemCoreClock/10);
 
