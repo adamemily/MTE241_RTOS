@@ -14,14 +14,16 @@
 #define WAITING 1
 #define SLEEPING 2
 
+#define TIMESLICE_DEFAULT 1000
+
 //define thread struct
 typedef struct{
 	uint32_t* TSP; //store thread stack pointer
 	void (*fun_ptr)(void); //store thread's function pointer
 	
 	int status; 
-	int timeSlice; //add thread-specific SysTick time divisor
-	int sleepTimer;
+	int timer; //in ms
+	int sleepTime;
 
 } threadStruct;
 

@@ -18,6 +18,9 @@ const int TEST_RANGE = 3000;
 const int TEST_INTERVAL1 = 1000;
 const int TEST_INTERVAL2 = 2000;
 
+extern threadStruct threadCollection[MAX_THREADS];
+extern int threadCurr;
+
 //thread functions
 void thread1(){
 	while(1){
@@ -62,7 +65,8 @@ void thread2(){
 void thread3(){
 	while(1){
 		thread3Call++;
-		printf("Running thread 3. Call count: %d\n", thread3Call);
+		//printf("		Running thread 3. Call count: %d\n", thread3Call);
+		//printf("Running thread 3. Timer: %d\n", threadCollection[threadCurr].timer);
 
 		/*
 		//turn on LED 5 but keep others off
@@ -73,15 +77,13 @@ void thread3(){
 			LED_set(5);
 		}
 		*/
-		
-		osYield(); //call yield/scheduler function
 	}
 }
 
 int main( void ) 
 {
 	SystemInit();
-	//printf("\nRunning L-OS-S...\r\n");
+	printf("\nRunning L-OS-S...\r\n");
 	
 	//LED initialization (set directions to output, start with all LEDs turned off)
 	LED_setup();
@@ -93,11 +95,11 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, 200);
-	osThreadNew(thread2, 200);
-	osThreadNew(thread3, 200);
+	osThreadNew(thread1, TIMESLICE_DEFAULT, 0); //will yield
+	osThreadNew(thread2, TIMESLICE_DEFAULT, 5000); //will sleep
+	osThreadNew(thread3, TIMESLICE_DEFAULT, 0); //will be pre-empted
 	
-	SysTick_Config(SystemCoreClock/10);
+	SysTick_Config(SystemCoreClock/1000);
 
 	//Start running the threads
 	osKernelStart();
