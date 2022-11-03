@@ -65,7 +65,7 @@ void thread2(){
 void thread3(){
 	while(1){
 		thread3Call++;
-		//printf("		Running thread 3. Call count: %d\n", thread3Call);
+		//printf("Running thread 3. Call count: %d\n", thread3Call);
 		//printf("Running thread 3. Timer: %d\n", threadCollection[threadCurr].timer);
 
 		/*
@@ -95,9 +95,10 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, TIMESLICE_DEFAULT, 0); //will yield
+	osThreadNew(thread1, TIMESLICE_DEFAULT, 2000); //will yield
 	osThreadNew(thread2, TIMESLICE_DEFAULT, 5000); //will sleep
-	osThreadNew(thread3, 4000, 0); //will be pre-empted
+	//osThreadNew(thread3, 4000, 0); //will be pre-empted
+	osIdleNew();
 	
 	SysTick_Config(SystemCoreClock/1000);
 

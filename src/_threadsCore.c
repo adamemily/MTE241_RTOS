@@ -5,6 +5,7 @@
 uint32_t* endOfStack_ptr = NULL;
 int numThreads = 0;
 threadStruct threadCollection[MAX_THREADS];
+threadStruct idleThread;
 
 //obtain the initial location of MSP by looking it up in the vector table
 uint32_t* getMSPInitialLocation (void){
@@ -20,8 +21,8 @@ uint32_t* getMSPInitialLocation (void){
 //return address of new a PSP with offset of "offset" bytes from MSP
 uint32_t* getNewThreadStack (uint32_t offset){
 	//check if we are exceeding the max stack size
-	if (MAX_STACK < offset*(numThreads+1)){
-		printf("ERROR: Offset too large");
+	if (MAX_STACK < offset){
+		printf("ERROR: Offset too large\n");
 		return NULL; 
 			//make sure to look for a NULL return in future functions to check if getNewThreadStack failed or not
 	}
@@ -37,7 +38,7 @@ uint32_t* getNewThreadStack (uint32_t offset){
 	
 	//check if overwriting a previous stack
 	if(PSP_adr > (uint32_t) endOfStack_ptr-(STACK_SIZE)){
-		printf("ERROR: Overwriting old data");
+		printf("ERROR: Overwriting old data\n");
 		return NULL; 
 	}
 	
@@ -100,6 +101,54 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 		*(--threadCollection[stackID].TSP) = 0x4; //R4
 	
 	threadCollection[stackID].status = WAITING;
+	
+	return 0;
+}
+
+void idleFunction(void){
+	while(1);
+}
+
+//Initializes the idle thread
+int osIdleNew(){
+
+	//generate and store TSP
+	idleThread.TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE + IDLE_STACK_SIZE); //MSP stack + n*thread stacks + size of idle stack
+	
+	//if getnewThreadStack encounters an error creating the thread pointer, TSP generated will be a NULL pointer
+	if(idleThread.TSP == NULL){
+		return -1; //osThreadNew failed
+	}
+	
+	//set threadStruct params
+	idleThread.fun_ptr = idleFunction;
+	idleThread.timer = TIMESLICE_IDLE;
+	idleThread.timeslice = TIMESLICE_IDLE;
+	idleThread.sleepTime = 0;
+
+	//set the values for what the "running" thread will populate the registers with
+	*(--idleThread.TSP) = 1<<24; //xPSR
+	*(--idleThread.TSP) = (uint32_t) idleThread.fun_ptr; //PC (program counter)
+	
+		//dummy values (need to be nonzero)
+		*(--idleThread.TSP) = 0xE; //LR
+		*(--idleThread.TSP) = 0xC; //R12
+		*(--idleThread.TSP) = 0x3; //R3
+		*(--idleThread.TSP) = 0x2; //R2
+		*(--idleThread.TSP) = 0x1; //R1
+		*(--idleThread.TSP) = 0x0; //R0
+	
+		//dummy values (for testing purposes)
+		*(--idleThread.TSP) = 0xB; //R11
+		*(--idleThread.TSP) = 0xA; //R10
+		*(--idleThread.TSP) = 0x9; //R9
+		*(--idleThread.TSP) = 0x8; //R8
+		*(--idleThread.TSP) = 0x7; //R7
+		*(--idleThread.TSP) = 0x6; //R6
+		*(--idleThread.TSP) = 0x5; //R5
+		*(--idleThread.TSP) = 0x4; //R4
+	
+	idleThread.status = WAITING;
 	
 	return 0;
 }

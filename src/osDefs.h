@@ -9,12 +9,14 @@
 #define MAX_STACK 0x2000
 #define STACK_SIZE 512
 #define MAX_THREADS ((MAX_STACK - STACK_SIZE)/STACK_SIZE)
+#define IDLE_STACK_SIZE 512
 
 #define ACTIVE 0
 #define WAITING 1
 #define SLEEPING 2
 
 #define TIMESLICE_DEFAULT 1000
+#define TIMESLICE_IDLE 100
 
 //define thread struct
 typedef struct{

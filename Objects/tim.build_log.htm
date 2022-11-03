@@ -29,7 +29,9 @@ Project File Date:  10/25/2022
 Rebuild target 'Target 1'
 compiling Retarget.c...
 compiling p1_main.c...
-src\_threadsCore.h(19): warning:  #1-D: last line of file ends without a newline
+src\_threadsCore.h(19): warning:  #1295-D: Deprecated declaration osIdleNew - give arg types
+  int osIdleNew();
+src\_threadsCore.h(21): warning:  #1-D: last line of file ends without a newline
   #endif
 src\_kernelCore.h(13): warning:  #1295-D: Deprecated declaration osKernelStart - give arg types
   bool osKernelStart(); //start running the kernel, i.e. the OS
@@ -37,19 +39,21 @@ src\_kernelCore.h(15): warning:  #1295-D: Deprecated declaration osLoadFirst - g
   void osLoadFirst(); //called by the kernel to start running the very first thread, before getting into context switching
 src\_kernelCore.h(25): warning:  #1-D: last line of file ends without a newline
   #endif
-src\osDefs.h(31): warning:  #1-D: last line of file ends without a newline
+src\osDefs.h(33): warning:  #1-D: last line of file ends without a newline
   #endif
-src\p1_main.c: 5 warnings, 0 errors
+src\p1_main.c: 6 warnings, 0 errors
 compiling uart.c...
 assembling svc_call.s...
 compiling _threadsCore.c...
-src\_threadsCore.h(19): warning:  #1-D: last line of file ends without a newline
+src\_threadsCore.h(19): warning:  #1295-D: Deprecated declaration osIdleNew - give arg types
+  int osIdleNew();
+src\_threadsCore.h(21): warning:  #1-D: last line of file ends without a newline
   #endif
-src\osDefs.h(31): warning:  #1-D: last line of file ends without a newline
+src\osDefs.h(33): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_threadsCore.c(105): warning:  #1-D: last line of file ends without a newline
+src\_threadsCore.c(154): warning:  #1-D: last line of file ends without a newline
   }
-src\_threadsCore.c: 3 warnings, 0 errors
+src\_threadsCore.c: 4 warnings, 0 errors
 assembling startup_LPC17xx.s...
 compiling _kernelCore.c...
 src\_kernelCore.h(13): warning:  #1295-D: Deprecated declaration osKernelStart - give arg types
@@ -58,14 +62,14 @@ src\_kernelCore.h(15): warning:  #1295-D: Deprecated declaration osLoadFirst - g
   void osLoadFirst(); //called by the kernel to start running the very first thread, before getting into context switching
 src\_kernelCore.h(25): warning:  #1-D: last line of file ends without a newline
   #endif
-src\osDefs.h(31): warning:  #1-D: last line of file ends without a newline
+src\osDefs.h(33): warning:  #1-D: last line of file ends without a newline
   #endif
 src\_kernelCore.c: 4 warnings, 0 errors
 compiling led.c...
 compiling system_LPC17xx.c...
 linking...
-Program Size: Code=4380 RO-data=304 RW-data=72 ZI-data=16968  
-".\Objects\tim.axf" - 0 Error(s), 12 Warning(s).
+Program Size: Code=4928 RO-data=304 RW-data=76 ZI-data=16996  
+".\Objects\tim.axf" - 0 Error(s), 14 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -96,7 +100,7 @@ Package Vendor: Keil
       Source file:   Device\Source\system_LPC17xx.c
       Source file:   Device\Source\ARM\startup_LPC17xx.s
       Include file:  RTE_Driver\Config\RTE_Device.h
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>
