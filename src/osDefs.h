@@ -24,6 +24,7 @@ typedef struct{
 	int status; 
 	int timer; //in ms
 	int sleepTime;
+	int timeslice;
 
 } threadStruct;
 

@@ -90,7 +90,7 @@ void SysTick_Handler(void){
 			if(threadCollection[i].timer == 0)
 			{
 				threadCollection[i].status = WAITING;
-				threadCollection[i].timer = TIMESLICE_DEFAULT; //assuming all timeslices for running threads are the same
+				threadCollection[i].timer = threadCollection[i].timeslice; //assuming all timeslices for running threads are the same
 			}
 		}
 	}
@@ -98,7 +98,7 @@ void SysTick_Handler(void){
 	//if timeslice of running thread is up, proceed with task-switching
 	if(threadCollection[threadCurr].timer <= 0)
 	{
-		printf("here\n");
+		printf("Thread timeslice complete.\n");
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
 		//prepare current thread to sleep if can sleep
 		if(threadCollection[threadCurr].sleepTime != 0){
@@ -107,7 +107,7 @@ void SysTick_Handler(void){
 		}
 		else{
 			threadCollection[threadCurr].status = WAITING;
-			threadCollection[threadCurr].timer = TIMESLICE_DEFAULT;
+			threadCollection[threadCurr].timer = threadCollection[threadCurr].timeslice;
 		}
 		 
 		//call scheduler 
