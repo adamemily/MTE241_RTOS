@@ -96,8 +96,9 @@ int main( void )
 
 	//Initialize each thread
 	osThreadNew(thread1, TIMESLICE_DEFAULT, 0); //will yield
-	osThreadNew(thread2, TIMESLICE_DEFAULT, 5000); //will sleep
-	osThreadNew(thread3, 4000, 0); //will be pre-empted
+	osThreadNew(thread2, TIMESLICE_DEFAULT, 3000); //will sleep
+	osThreadNew(thread3, 2000, 0); //will be pre-empted
+	osThreadNew(idleThread, TIMESLICE_IDLE, 0);
 	
 	SysTick_Config(SystemCoreClock/1000);
 

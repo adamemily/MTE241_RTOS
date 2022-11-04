@@ -5,6 +5,9 @@
 extern threadStruct threadCollection[MAX_THREADS];
 extern int numThreads;
 int threadCurr = 0;
+extern int idleIndex;
+bool leaveIdle = false;
+bool canInterrupt = false;
 
 //uint32_t* chad = NULL;
 
@@ -35,6 +38,7 @@ void osLoadFirst(){
 
 //schedule the next thread to run and call the context switcher
 void osYield(void){ 
+	canInterrupt = false;
 	//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
 	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-16*4);
 	if(threadCollection[threadCurr].sleepTime != 0){
@@ -48,7 +52,7 @@ void osYield(void){
 	//call scheduler
 	scheduler();
 	
-
+	canInterrupt = true;
 	ICSR |= 1<<28;
 	__asm("isb");
 }
@@ -56,14 +60,20 @@ void osYield(void){
 void scheduler(void){
 	bool isFound = false;
 	
+	int index = threadCurr;
+	if(threadCurr == idleIndex){
+		index = threadCurr-1; //just cycle through the thread indexes
+	}
+	
 	if (numThreads > 1){
 		for (int i = 0; i < numThreads && isFound == false; i++){
 			//cycle through the threads in the thread struct array
-			threadCurr = (threadCurr+1)%numThreads;
-			printf("Trying thread %d\n", threadCurr+1);
+			index = (index+1)%numThreads;
+			printf("Trying thread %d\n", index+1);
 			
 			//check status: if next thread in round robin is waiting, proceed! else, loop back and look at next thread
-			if(threadCollection[threadCurr].status == WAITING){
+			if(threadCollection[index].status == WAITING){
+				threadCurr = index;
 				isFound = true;
 			}
 		}
@@ -71,6 +81,7 @@ void scheduler(void){
 		//if no threads are waiting, use idle thread
 		if(isFound != true){
 			printf("all the people of the world are asleep\n");
+			threadCurr = idleIndex;
 		}
 	}
 }
@@ -86,19 +97,27 @@ void SysTick_Handler(void){
 		if(threadCollection[i].status == SLEEPING && i != threadCurr)
 		{
 			--threadCollection[i].timer;
+			if(threadCollection[i].timer % 50 == 0){
+				printf("Thread %d sleeptime: %d \n", (i+1), threadCollection[i].timer);
+			}
+			
 			//check wake-up status
 			if(threadCollection[i].timer == 0)
 			{
+				if(threadCurr == idleIndex){
+					//threadCurr = i; //move back into round robin
+					leaveIdle = true;
+				}
 				threadCollection[i].status = WAITING;
 				threadCollection[i].timer = threadCollection[i].timeslice; //assuming all timeslices for running threads are the same
 			}
-		}
+		} 
 	}
 	
 	//if timeslice of running thread is up, proceed with task-switching
-	if(threadCollection[threadCurr].timer <= 0)
+	if((threadCollection[threadCurr].timer <= 0 || leaveIdle == true) && canInterrupt == true)
 	{
-		printf("Thread timeslice complete.\n");
+		printf("here, threadCurr = %d\n", threadCurr);
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
 		//prepare current thread to sleep if can sleep
 		if(threadCollection[threadCurr].sleepTime != 0){
@@ -108,6 +127,11 @@ void SysTick_Handler(void){
 		else{
 			threadCollection[threadCurr].status = WAITING;
 			threadCollection[threadCurr].timer = threadCollection[threadCurr].timeslice;
+		}
+		
+		if(leaveIdle == true){
+			threadCurr = idleIndex-1;
+			leaveIdle = false;
 		}
 		 
 		//call scheduler 
@@ -124,5 +148,9 @@ int task_switch(void){
 	//set PSP to the thread we want to start running
 	__set_PSP((uint32_t)threadCollection[threadCurr].TSP);
 	threadCollection[threadCurr].status = ACTIVE;
+	
+	if ((threadCurr + 1) == 3){
+		printf("Running thread 3 \n");
+	}
 	return 0;
 }

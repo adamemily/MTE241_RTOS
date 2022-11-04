@@ -4,6 +4,7 @@
 //global variables
 uint32_t* endOfStack_ptr = NULL;
 int numThreads = 0;
+int idleIndex = 0;
 threadStruct threadCollection[MAX_THREADS];
 
 //obtain the initial location of MSP by looking it up in the vector table
@@ -20,7 +21,7 @@ uint32_t* getMSPInitialLocation (void){
 //return address of new a PSP with offset of "offset" bytes from MSP
 uint32_t* getNewThreadStack (uint32_t offset){
 	//check if we are exceeding the max stack size
-	if (MAX_STACK < offset*(numThreads+1)){
+	if (MAX_STACK < offset){
 		printf("ERROR: Offset too large");
 		return NULL; 
 			//make sure to look for a NULL return in future functions to check if getNewThreadStack failed or not
@@ -61,9 +62,14 @@ uint32_t* getNewThreadStack (uint32_t offset){
 int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 	++numThreads;
 	int stackID = numThreads-1;
-
-	//generate and store TSP
-	threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //MSP stack + n*thread stacks
+	
+	if(threadCollection[stackID].fun_ptr == idleThread){
+		threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //change with idle stack size
+	}
+	else{
+		//generate and store TSP
+		threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //MSP stack + n*thread stacks
+	}
 	
 	//if getnewThreadStack encounters an error creating the thread pointer, TSP generated will be a NULL pointer
 	if(threadCollection[stackID].TSP == NULL){
@@ -101,5 +107,14 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 	
 	threadCollection[stackID].status = WAITING;
 	
+	if(threadCollection[stackID].fun_ptr == idleThread){
+		--numThreads;
+		idleIndex = numThreads;
+	}
+	
 	return 0;
+}
+
+void idleThread(void){
+	while(1);
 }
