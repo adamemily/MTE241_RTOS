@@ -15,7 +15,7 @@
 #define SLEEPING 2
 
 #define TIMESLICE_DEFAULT 1000
-#define TIMESLICE_IDLE 100
+#define TIMESLICE_IDLE 500
 
 //define thread struct
 typedef struct{

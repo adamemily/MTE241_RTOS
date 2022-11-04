@@ -63,11 +63,11 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 	++numThreads;
 	int stackID = numThreads-1;
 	
+	//generate and store TSP
 	if(threadCollection[stackID].fun_ptr == idleThread){
-		threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //change with idle stack size
+		threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //in the future, use a smaller stack size for idle & modify getNewThreadStack to allow for this
 	}
 	else{
-		//generate and store TSP
 		threadCollection[stackID].TSP = getNewThreadStack(STACK_SIZE + numThreads*STACK_SIZE); //MSP stack + n*thread stacks
 	}
 	
@@ -107,6 +107,7 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 	
 	threadCollection[stackID].status = WAITING;
 	
+	//if the idle thread is being initialized
 	if(threadCollection[stackID].fun_ptr == idleThread){
 		--numThreads;
 		idleIndex = numThreads;
@@ -115,6 +116,7 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 	return 0;
 }
 
+//idle function
 void idleThread(void){
 	while(1);
 }

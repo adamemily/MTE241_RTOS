@@ -16,9 +16,9 @@ void osLoadFirst(); //called by the kernel to start running the very first threa
 	 
 void osYield(void); //called by the kernel to schedule the next thread to run and call the context switcher
 
-void SysTick_Handler(void); // called when thread's timeslice is up, calls scheduler to decide thread to run next
+void SysTick_Handler(void); //called when thread's timeslice is up, calls scheduler to decide which thread to run next
 
-void scheduler(void); // scheduler function to decide which thread to run next, based off Round-Robin Pre-emptive scheduling
+void scheduler(void); //decides which thread to run next, based off round-robin logic
 
 int task_switch(void); //called by the PendSV interrupt to set PSP to the next thread scheduled to run
 
