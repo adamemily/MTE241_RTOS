@@ -1,6 +1,7 @@
 	AREA	handle_pend,CODE,READONLY
 	EXTERN task_switch 
 	GLOBAL PendSV_Handler
+	GLOBAL SVC_Handler
 	PRESERVE8
 PendSV_Handler
 		;Load PSP into r0
@@ -26,4 +27,13 @@ PendSV_Handler
 		;Return
 		BX LR
 
-		END
+		;END
+			
+SVC_Handler
+		EXTERN SVC_Handler_Main
+		TST LR,#4
+		ITE EQ
+		MRSEQ r0, MSP
+		MRSNE r0, PSP
+		B SVC_Handler_Main
+		END 

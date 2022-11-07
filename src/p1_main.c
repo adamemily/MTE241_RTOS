@@ -51,9 +51,9 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, TIMESLICE_DEFAULT, 2000); //will sleep
+	osThreadNew(thread1, TIMESLICE_DEFAULT, 0); //will sleep
 	osThreadNew(thread2, TIMESLICE_DEFAULT, 3000); //will sleep
-	//osThreadNew(thread3, 2000, 0); //will be pre-empted
+	osThreadNew(thread3, TIMESLICE_DEFAULT, 0); //will be pre-empted
 	
 	osThreadNew(idleThread, TIMESLICE_IDLE, 0); //always initialize last
 	

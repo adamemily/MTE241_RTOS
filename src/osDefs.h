@@ -17,6 +17,9 @@
 #define TIMESLICE_DEFAULT 1000
 #define TIMESLICE_IDLE 500
 
+#define YIELD_SWITCH 0
+#define SYSTICK_SWITCH 1
+
 //define thread struct
 typedef struct{
 	uint32_t* TSP; //store thread stack pointer

@@ -7,37 +7,47 @@ ARM Macro Assembler    Page 1
     1 00000000                 AREA             handle_pend,CODE,READONLY
     2 00000000                 EXTERN           task_switch
     3 00000000                 GLOBAL           PendSV_Handler
-    4 00000000                 PRESERVE8
-    5 00000000         PendSV_Handler
-    6 00000000         ;Load PSP into r0
-    7 00000000 F3EF 8009       MRS              r0,PSP
-    8 00000004         
-    9 00000004         ;Store the registers, decrementing in memory from the ad
+    4 00000000                 GLOBAL           SVC_Handler
+    5 00000000                 PRESERVE8
+    6 00000000         PendSV_Handler
+    7 00000000         ;Load PSP into r0
+    8 00000000 F3EF 8009       MRS              r0,PSP
+    9 00000004         
+   10 00000004         ;Store the registers, decrementing in memory from the ad
                        dress stored in r0
-   10 00000004 E920 0FF0       STMDB            r0!,{r4-r11}
-   11 00000008         
-   12 00000008         ;Call kernel task switch
-   13 00000008 F7FF FFFE       BL               task_switch
-   14 0000000C         
-   15 0000000C         ;Load into r0 the updated PSP, belonging to the new thre
+   11 00000004 E920 0FF0       STMDB            r0!,{r4-r11}
+   12 00000008         
+   13 00000008         ;Call kernel task switch
+   14 00000008 F7FF FFFE       BL               task_switch
+   15 0000000C         
+   16 0000000C         ;Load into r0 the updated PSP, belonging to the new thre
                        ad to run
-   16 0000000C F3EF 8009       MRS              r0,PSP
-   17 00000010 F06F 0E02       MOV              LR,#0xFFFFFFFD ;magic return va
+   17 0000000C F3EF 8009       MRS              r0,PSP
+   18 00000010 F06F 0E02       MOV              LR,#0xFFFFFFFD ;magic return va
                                                             lue to get us back 
                                                             to Thread mode
-   18 00000014         
-   19 00000014         ;LoaD Multiple Increment After. Load the context stored 
+   19 00000014         
+   20 00000014         ;LoaD Multiple Increment After. Load the context stored 
                        in the memory locations above the address stored in r0
-   20 00000014 E8B0 0FF0       LDMIA            r0!,{r4-r11}
-   21 00000018         
+   21 00000014 E8B0 0FF0       LDMIA            r0!,{r4-r11}
    22 00000018         
-   23 00000018         ;Set PSP to the final location of r0
-   24 00000018 F380 8809       MSR              PSP,r0
-   25 0000001C         
-   26 0000001C         ;Return
-   27 0000001C 4770            BX               LR
-   28 0000001E         
-   29 0000001E                 END
+   23 00000018         
+   24 00000018         ;Set PSP to the final location of r0
+   25 00000018 F380 8809       MSR              PSP,r0
+   26 0000001C         
+   27 0000001C         ;Return
+   28 0000001C 4770            BX               LR
+   29 0000001E         
+   30 0000001E         ;END
+   31 0000001E         
+   32 0000001E         SVC_Handler
+   33 0000001E                 EXTERN           SVC_Handler_Main
+   34 0000001E F01E 0F04       TST              LR,#4
+   35 00000022 BF0C            ITE              EQ
+   36 00000024 F3EF 8008       MRSEQ            r0, MSP
+   37 00000028 F3EF 8009       MRSNE            r0, PSP
+   38 0000002C F7FF BFFE       B                SVC_Handler_Main
+   39 00000030                 END
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\svc_call.d -o.\objects\svc_call.o -I.\RTE\Device\LPC1768
  -I.\RTE\_Target_1 -IC:\Software\Keil_v5\ARM\PACK\ARM\CMSIS\5.8.0\CMSIS\Core\In
@@ -55,10 +65,18 @@ PendSV_Handler 00000000
 
 Symbol: PendSV_Handler
    Definitions
-      At line 5 in file src\svc_call.s
+      At line 6 in file src\svc_call.s
    Uses
       At line 3 in file src\svc_call.s
 Comment: PendSV_Handler used once
+SVC_Handler 0000001E
+
+Symbol: SVC_Handler
+   Definitions
+      At line 32 in file src\svc_call.s
+   Uses
+      At line 4 in file src\svc_call.s
+Comment: SVC_Handler used once
 handle_pend 00000000
 
 Symbol: handle_pend
@@ -67,20 +85,28 @@ Symbol: handle_pend
    Uses
       None
 Comment: handle_pend unused
-2 symbols
+3 symbols
 
 
 
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 External symbols
 
+SVC_Handler_Main 00000000
+
+Symbol: SVC_Handler_Main
+   Definitions
+      At line 33 in file src\svc_call.s
+   Uses
+      At line 38 in file src\svc_call.s
+Comment: SVC_Handler_Main used once
 task_switch 00000000
 
 Symbol: task_switch
    Definitions
       At line 2 in file src\svc_call.s
    Uses
-      At line 13 in file src\svc_call.s
+      At line 14 in file src\svc_call.s
 Comment: task_switch used once
-1 symbol
-337 symbols in table
+2 symbols
+339 symbols in table

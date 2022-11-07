@@ -12,7 +12,11 @@ bool canInterrupt = false;
 
 //set priority of the PendSV interrupt
 void kernelInit(void){
-	SHPR3 |= 0xFF << 16;
+	//PendSV priority
+	SHPR3 |= 0xFE << 16; 
+	SHPR3 |= 0xFFU << 24; //SysTick priority
+	
+	SHPR2 |= 0xFDU << 24; //SVC priority
 }
 
 //start running the kernel, i.e. the OS
@@ -37,7 +41,10 @@ void osLoadFirst(){
 
 //called when a thread yields, starts task switching process
 void osYield(void){ 
-	canInterrupt = false;
+	//Call SVC
+	__ASM("SVC #0");
+	
+	/*canInterrupt = false;
 	
 	//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
 	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-16*4);
@@ -55,7 +62,7 @@ void osYield(void){
 	
 	canInterrupt = true;
 	ICSR |= 1<<28;
-	__asm("isb");
+	__asm("isb");*/
 }
 
 //determine next available thread to switch to
@@ -141,6 +148,32 @@ void SysTick_Handler(void){
 	}
 }
 
+void SVC_Handler_Main(uint32_t *svc_args)
+{
+	char call = ((char*)svc_args[6])[-2];
+	
+	if(call == 0)
+	{
+		//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
+		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
+		//if the thread is able to sleep, set it to sleep
+		if(threadCollection[threadCurr].sleepTime != 0){
+			threadCollection[threadCurr].status = SLEEPING;
+			threadCollection[threadCurr].timer = threadCollection[threadCurr].sleepTime; //set timer to user-defined sleep timer
+		}
+		//otherwise, set it back to waiting
+		else{
+			threadCollection[threadCurr].status = WAITING;
+		}
+		
+		scheduler();
+		
+		canInterrupt = true;
+		ICSR |= 1<<28;
+		__asm("isb");
+	}
+}
+
 
 int task_switch(void){
 	//set PSP to the thread we want to start running
@@ -152,3 +185,5 @@ int task_switch(void){
 	}
 	return 0;
 }
+
+

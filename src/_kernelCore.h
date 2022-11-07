@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #define SHPR3 *(uint32_t*)0xE000ED20 //location of the PendSV priority register
+#define SHPR2 *(uint32_t*)0xE000ED1C // location of SVC priority register
 #define ICSR *(uint32_t*)0xE000ED04 //location of the ISCR
 
 void kernelInit(void); //initialize memory structures and interrupts necessary to run the kernel
@@ -20,6 +21,10 @@ void SysTick_Handler(void); //called when thread's timeslice is up, calls schedu
 
 void scheduler(void); //decides which thread to run next, based off round-robin logic
 
+void SVC_Handler_Main(uint32_t *svc_args);
+
 int task_switch(void); //called by the PendSV interrupt to set PSP to the next thread scheduled to run
+
+
 
 #endif
