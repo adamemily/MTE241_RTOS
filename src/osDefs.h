@@ -14,8 +14,8 @@
 #define WAITING 1
 #define SLEEPING 2
 
-#define TIMESLICE_DEFAULT 1000
-#define TIMESLICE_IDLE 500
+#define DEADLINE_DEFAULT 1000
+#define DEADLINE_IDLE 500
 
 #define YIELD_SWITCH 0
 #define SYSTICK_SWITCH 1
@@ -27,8 +27,8 @@ typedef struct{
 	
 	int status; 
 	int timer; //in ms
-	int sleepTime;
-	int timeslice;
+	int period;
+	int deadline;
 
 } threadStruct;
 

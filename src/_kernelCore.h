@@ -17,6 +17,8 @@ void osLoadFirst(); //called by the kernel to start running the very first threa
 	 
 void osYield(void); //called by the kernel to schedule the next thread to run and call the context switcher
 
+void osSleep(void);
+
 void SysTick_Handler(void); //called when thread's timeslice is up, calls scheduler to decide which thread to run next
 
 void scheduler(void); //decides which thread to run next, based off round-robin logic

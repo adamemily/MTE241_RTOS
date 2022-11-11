@@ -59,7 +59,7 @@ uint32_t* getNewThreadStack (uint32_t offset){
 
 
 //Initializes the thread stack and its initial context in memory
-int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
+int osThreadNew(void (*fun_ptr)(void), int deadline, int period){
 	++numThreads;
 	int stackID = numThreads-1;
 	
@@ -79,9 +79,9 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime){
 	
 	//set threadStruct params
 	threadCollection[stackID].fun_ptr = fun_ptr;
-	threadCollection[stackID].timer = timeslice;
-	threadCollection[stackID].timeslice = timeslice;
-	threadCollection[stackID].sleepTime = sleepTime;
+	threadCollection[stackID].timer = deadline;
+	threadCollection[stackID].deadline = deadline;
+	threadCollection[stackID].period = period;
 
 	//set the values for what the "running" thread will populate the registers with
 	*(--threadCollection[stackID].TSP) = 1<<24; //xPSR
