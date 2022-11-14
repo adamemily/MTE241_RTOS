@@ -112,7 +112,7 @@ int osThreadNew(void (*fun_ptr)(void), int deadline, int period){
 		--numThreads;
 		idleIndex = numThreads;
 	}
-	
+
 	return 0;
 }
 

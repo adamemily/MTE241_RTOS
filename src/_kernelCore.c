@@ -41,41 +41,33 @@ void osLoadFirst(){
 //called when a thread yields, starts task switching process
 void osYield(void){ 
 	//Call SVC
+	printf("Thread yielded from osYield.\n");
 	__ASM("SVC #0");
-	
-	/*canInterrupt = false;
-	
-	//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
-	threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-16*4);
-	//if the thread is able to sleep, set it to sleep
-	if(threadCollection[threadCurr].sleepTime != 0){
-		threadCollection[threadCurr].status = SLEEPING;
-		threadCollection[threadCurr].timer = threadCollection[threadCurr].sleepTime; //set timer to user-defined sleep timer
-	}
-	//otherwise, set it back to waiting
-	else{
-		threadCollection[threadCurr].status = WAITING;
-	}
-	
-	scheduler();
-	
-	canInterrupt = true;
-	ICSR |= 1<<28;
-	__asm("isb");*/
 }
 
 //determine next available thread to switch to
 void scheduler(void){
 	bool isFound = false;
-	int index = threadCurr;
+	//int index = threadCurr;
 	int shortestDeadIndex = 0;
 	
 	if(numThreads > 0){
 		for (int i = 0; i < numThreads; i++)
 		{
-			if (threadCollection[i].status == WAITING && (threadCollection[i].timer < threadCollection[shortestDeadIndex].timer)){
-				isFound = true;
-				shortestDeadIndex = i;
+			//look for the earliest deadline among waiting tasks
+			if(threadCollection[i].status == WAITING){
+				if(isFound == false){ //at least one waiting task found
+					isFound = true;
+					shortestDeadIndex = i;
+					
+					printf("Found thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
+				}
+				if(isFound == true){ //at least one waiting thread is found, find earlier deadlines
+					if(threadCollection[i].timer < threadCollection[shortestDeadIndex].timer){
+						shortestDeadIndex = i;
+						printf("Found thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
+					}
+				}
 			}
 		}
 	}
@@ -87,17 +79,19 @@ void scheduler(void){
 	}
 	else{
 		threadCurr = shortestDeadIndex;
+		printf("Trying thread %d\n", threadCurr+1);
 	}
 }
 
 void SysTick_Handler(void){
 	bool preEmptTask = false;
+	
 	//decrement all timers, deadlines and sleep timers
 	for(int i = 0; i < numThreads; i++)
 	{
 		--threadCollection[i].timer;
 		
-		if(threadCollection[i].timer <= 0)
+		if(threadCollection[i].timer <= 0) //i is within numThreads range, therefore does not include the idleThread
 		{
 			//check wake-up status if sleeping
 			if(threadCollection[i].status == SLEEPING)
@@ -107,28 +101,41 @@ void SysTick_Handler(void){
 				}
 				threadCollection[i].status = WAITING;
 				threadCollection[i].timer = threadCollection[i].deadline;
-				if (threadCollection[i].timer < threadCollection[threadCurr].timer){
+				//if the thread that has woken up has an earlier deadline than the running task, or has a tied deadline
+					//if tied, choose the task with the lower index
+				if (threadCollection[i].timer < threadCollection[threadCurr].timer || (threadCollection[i].timer == threadCollection[threadCurr].timer && i < threadCurr)){
 					preEmptTask = true;
-				}					
+				}
 			}
 			
-			//check if system has failed if deadline has fniished
+			//thread failed to meet its deadline. user's fault for designing poor threads
 			if(threadCollection[i].status == WAITING){
-				printf("DEADLINE MISSED :( \n");
+				printf("Deadline missed -- system failed. \n");
 			}
 		}
 	}
 	
-	//if timeslice of running thread is up, proceed with task-switching
-	if(preEmptTask == true || leaveIdle == true)
+	//if preempted by a thread with a earlier deadline, is leaving the idle thread, or if the running thread's timer goes to zero
+	if(preEmptTask == true || leaveIdle == true || threadCollection[threadCurr].timer <= 0)
 	{
+		printf("Thread yielded from SysTick.\n");
+		
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4); //decrement PSP only 8 locations lower, since the hardware registers remain on the stack
-		threadCollection[threadCurr].status = WAITING;
+		
+		//set to sleep if periodic
+		if(threadCollection[threadCurr].period != 0){
+			threadCollection[threadCurr].status = SLEEPING;
+			threadCollection[threadCurr].timer = threadCollection[threadCurr].period; //set timer to user-defined sleep timer
+		}
+		else{
+			threadCollection[threadCurr].status = WAITING;
+			threadCollection[threadCurr].timer = threadCollection[threadCurr].deadline;
+		}
 		
 		//if a thread woke up, return to EDF
 		if(leaveIdle == true){
-			threadCurr = idleIndex-1;
-			leaveIdle = false;
+			//threadCurr = idleIndex-1;
+			leaveIdle = false; //reset bool
 		}
 		 
 		scheduler();
@@ -142,11 +149,11 @@ void SVC_Handler_Main(uint32_t *svc_args)
 {
 	char call = ((char*)svc_args[6])[-2];
 	
-	if(call == 0)
+	if(call == 0) //thread yields code
 	{
-		//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
+		//move TSP of the running thread 8 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
-		//if the thread is able to sleep, set it to sleep
+		//in the case of a periodic thread that yields
 		if(threadCollection[threadCurr].period != 0){
 			threadCollection[threadCurr].status = SLEEPING;
 			threadCollection[threadCurr].timer = threadCollection[threadCurr].period; //set timer to user-defined sleep timer

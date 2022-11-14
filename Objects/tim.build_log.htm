@@ -41,7 +41,6 @@ src\osDefs.h(35): warning:  #1-D: last line of file ends without a newline
   #endif
 src\p1_main.c: 5 warnings, 0 errors
 compiling uart.c...
-assembling svc_call.s...
 compiling _threadsCore.c...
 src\_threadsCore.h(19): warning:  #1-D: last line of file ends without a newline
   #endif
@@ -50,6 +49,7 @@ src\osDefs.h(35): warning:  #1-D: last line of file ends without a newline
 src\_threadsCore.c(122): warning:  #1-D: last line of file ends without a newline
   }
 src\_threadsCore.c: 3 warnings, 0 errors
+assembling svc_call.s...
 assembling startup_LPC17xx.s...
 compiling _kernelCore.c...
 src\_kernelCore.h(14): warning:  #1295-D: Deprecated declaration osKernelStart - give arg types
@@ -60,14 +60,12 @@ src\_kernelCore.h(32): warning:  #1-D: last line of file ends without a newline
   #endif
 src\osDefs.h(35): warning:  #1-D: last line of file ends without a newline
   #endif
-src\_kernelCore.c(70): warning:  #177-D: variable "index"  was declared but never referenced
-  	int index = threadCurr;
-src\_kernelCore.c: 5 warnings, 0 errors
+src\_kernelCore.c: 4 warnings, 0 errors
 compiling led.c...
 compiling system_LPC17xx.c...
 linking...
-Program Size: Code=4420 RO-data=296 RW-data=80 ZI-data=16968  
-".\Objects\tim.axf" - 0 Error(s), 13 Warning(s).
+Program Size: Code=4756 RO-data=296 RW-data=80 ZI-data=16968  
+".\Objects\tim.axf" - 0 Error(s), 12 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -94,10 +92,10 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE:5.5.0
 
    * Component: Keil::Device:Startup:1.0.0
+      Source file:   Device\Source\ARM\startup_LPC17xx.s
+      Include file:  Device\Include\LPC17xx.h
       Include file:  RTE_Driver\Config\RTE_Device.h
       Source file:   Device\Source\system_LPC17xx.c
-      Include file:  Device\Include\LPC17xx.h
-      Source file:   Device\Source\ARM\startup_LPC17xx.s
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

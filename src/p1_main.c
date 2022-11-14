@@ -38,6 +38,8 @@ void thread2(){
 void thread3(){
 	while(1){
 		thread3Call++;
+		
+		osYield(); 
 	}
 }
 
@@ -51,8 +53,12 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, DEADLINE_DEFAULT, 2000); //will sleep
-	osThreadNew(thread2, DEADLINE_DEFAULT, 3000); //will sleep
+	osThreadNew(thread1, 3000, 0);
+	osThreadNew(thread2, 2000, 0);
+	//osThreadNew(thread3, 11000, 5000);
+	
+	//osThreadNew(thread1, DEADLINE_DEFAULT, 2000); //will sleep
+	//osThreadNew(thread2, DEADLINE_DEFAULT, 3000); //will sleep
 	//osThreadNew(thread3, DEADLINE_DEFAULT, 0); //will be pre-empted
 	
 	osThreadNew(idleThread, DEADLINE_IDLE, 0); //always initialize last
