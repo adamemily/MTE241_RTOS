@@ -31,7 +31,8 @@ void thread2(){
 		thread2Call++;
 		printf("Running thread 2. Call count: %d\n", thread2Call);
 
-		osSleep(100); 
+		//osYield(); //case 1
+		osSleep(50); //case 2
 	}
 }
 
@@ -53,9 +54,19 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, 300, 0);
-	osThreadNew(thread2, 200, 0);
-
+	//CASE 1
+	/* osThreadNew(thread1, 200, 4); //~256 Hz
+	osThreadNew(thread2, 200, 10); //~100 Hz
+	osThreadNew(thread3, 200, 83); //~12 Hz */
+	
+	//CASE 2
+	/*osThreadNew(thread1, 200, 0); //yields
+	osThreadNew(thread2, 200, 0); //sleeps
+	osThreadNew(thread3, 200, 4); //~250Hz */
+	
+	//CASE 3
+	osThreadNew(thread1, 200, 2000); //sleeps
+	osThreadNew(thread2, 200, 3000); //sleeps
 	
 	osThreadNew(idleThread, DEADLINE_IDLE, 0); //always initialize last
 	

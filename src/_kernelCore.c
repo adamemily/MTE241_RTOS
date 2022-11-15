@@ -66,18 +66,20 @@ void scheduler(void){
 	if(numThreads > 0){
 		for (int i = 0; i < numThreads; i++)
 		{
+			printf("Time on thread %d: %d, Status: %d\n", i+1, threadCollection[i].timer, threadCollection[i].status);
+			
 			//look for the earliest deadline among waiting tasks
 			if(threadCollection[i].status == WAITING){
 				if(isFound == false){ //at least one waiting task found
 					isFound = true;
 					shortestDeadIndex = i;
 					
-					printf("Found thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
+					//printf("Found thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
 				}
 				if(isFound == true){ //at least one waiting thread is found, find earlier deadlines
 					if(threadCollection[i].timer < threadCollection[shortestDeadIndex].timer){
 						shortestDeadIndex = i;
-						printf("Found thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
+						//printf("Found thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
 					}
 				}
 			}
