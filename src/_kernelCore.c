@@ -34,8 +34,20 @@ bool osKernelStart(){
 
 //start running the first thread, which will lead into context switching between all the threads
 void osLoadFirst(){
+	if(numThreads < 1){
+		threadCurr = idleIndex;
+	}
+	
 		ICSR |= 1<<28;
 		__asm("isb");
+}
+
+void osSleep(int sleepTime){
+	threadCollection[threadCurr].status = SLEEPING;
+	threadCollection[threadCurr].timer = sleepTime;
+	
+	printf("Thread yielded from osSleep.\n");
+	__ASM("SVC #0");
 }
 
 //called when a thread yields, starts task switching process
@@ -93,9 +105,16 @@ void SysTick_Handler(void){
 		
 		if(threadCollection[i].timer <= 0) //i is within numThreads range, therefore does not include the idleThread
 		{
+			//thread failed to meet its deadline. user's fault for designing poor threads
+			if(threadCollection[i].status == WAITING){
+				printf("Deadline of thread %d missed -- system failed.\n", i+1);
+			}
+			
 			//check wake-up status if sleeping
 			if(threadCollection[i].status == SLEEPING)
 			{
+				printf("Waking up thread %d\n", i+1);
+				
 				if(threadCurr == idleIndex){
 						leaveIdle = true;
 				}
@@ -106,11 +125,6 @@ void SysTick_Handler(void){
 				if (threadCollection[i].timer < threadCollection[threadCurr].timer || (threadCollection[i].timer == threadCollection[threadCurr].timer && i < threadCurr)){
 					preEmptTask = true;
 				}
-			}
-			
-			//thread failed to meet its deadline. user's fault for designing poor threads
-			if(threadCollection[i].status == WAITING){
-				printf("Deadline missed -- system failed. \n");
 			}
 		}
 	}
@@ -158,8 +172,8 @@ void SVC_Handler_Main(uint32_t *svc_args)
 			threadCollection[threadCurr].status = SLEEPING;
 			threadCollection[threadCurr].timer = threadCollection[threadCurr].period; //set timer to user-defined sleep timer
 		}
-		//otherwise, set it back to waiting
-		else{
+		//if not periodic and if not yielded by osSleep
+		else if(threadCollection[threadCurr].status != SLEEPING){
 			threadCollection[threadCurr].status = WAITING;
 			threadCollection[threadCurr].timer = threadCollection[threadCurr].deadline;
 		}
