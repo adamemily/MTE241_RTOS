@@ -41,7 +41,7 @@ void thread3(){
 		thread3Call++;
 		printf("Running thread 3. Call count: %d\n", thread2Call);
 		
-		osYield(); 
+		//osYield(); 
 	}
 }
 
@@ -56,14 +56,16 @@ int main( void )
 
 	//Initialize each thread
 	//CASE 1
+	/*
 	osThreadNew(thread1, 200, 4); //~256 Hz
 	osThreadNew(thread2, 200, 10); //~100 Hz
 	osThreadNew(thread3, 200, 83); //~12 Hz
+	*/
 	
 	//CASE 2
-	/*osThreadNew(thread1, 200, 0); //yields
-	osThreadNew(thread2, 200, 0); //sleeps
-	osThreadNew(thread3, 200, 4); //~250Hz */
+	osThreadNew(thread1, 20, 0); //yields
+	osThreadNew(thread2, 20, 0); //sleeps
+	osThreadNew(thread3, 2 0, 4); //~250Hz 
 	
 	//CASE 3
 	/*osThreadNew(thread1, 200, 2000); //sleeps
