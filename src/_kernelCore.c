@@ -135,14 +135,20 @@ void SysTick_Handler(void){
 		
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4); //decrement PSP only 8 locations lower, since the hardware registers remain on the stack
 		
-		//set to sleep if periodic
-		if(threadCollection[threadCurr].period != 0){
-			threadCollection[threadCurr].status = SLEEPING;
-			threadCollection[threadCurr].timer = threadCollection[threadCurr].period;
+		if(preEmptTask != true){ //leaveIdle or timer = 0. don't reset the deadline if pre-empted
+			//set to sleep if periodic
+			if(threadCollection[threadCurr].period != 0){
+				threadCollection[threadCurr].status = SLEEPING;
+				threadCollection[threadCurr].timer = threadCollection[threadCurr].period;
+			}
+			else{
+				threadCollection[threadCurr].status = WAITING;
+				threadCollection[threadCurr].timer = threadCollection[threadCurr].deadline;
+			}
 		}
 		else{
 			threadCollection[threadCurr].status = WAITING;
-			threadCollection[threadCurr].timer = threadCollection[threadCurr].deadline;
+			preEmptTask = false; //reset bool
 		}
 		
 		//reset leaveIdle flag

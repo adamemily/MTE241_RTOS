@@ -63,13 +63,17 @@ int main( void )
 	*/
 	
 	//CASE 2
-	osThreadNew(thread1, 20, 0); //yields
-	osThreadNew(thread2, 20, 0); //sleeps
-	osThreadNew(thread3, 2 0, 4); //~250Hz 
+	/*
+	osThreadNew(thread1, 50, 0); //yields
+	osThreadNew(thread2, 50, 0); //sleeps
+	osThreadNew(thread3, 50, 4); //~250Hz
+	*/
 	
 	//CASE 3
-	/*osThreadNew(thread1, 200, 2000); //sleeps
-	osThreadNew(thread2, 200, 3000); //sleeps*/
+	
+	osThreadNew(thread1, 200, 2000); //sleeps
+	osThreadNew(thread2, 200, 3000); //sleeps
+	
 	
 	osThreadNew(idleThread, DEADLINE_IDLE, 0); //always initialize last
 	
