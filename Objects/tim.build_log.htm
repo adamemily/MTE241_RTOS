@@ -41,6 +41,7 @@ src\osDefs.h(35): warning:  #1-D: last line of file ends without a newline
   #endif
 src\p1_main.c: 5 warnings, 0 errors
 compiling uart.c...
+assembling svc_call.s...
 compiling _threadsCore.c...
 src\_threadsCore.h(19): warning:  #1-D: last line of file ends without a newline
   #endif
@@ -49,7 +50,6 @@ src\osDefs.h(35): warning:  #1-D: last line of file ends without a newline
 src\_threadsCore.c(122): warning:  #1-D: last line of file ends without a newline
   }
 src\_threadsCore.c: 3 warnings, 0 errors
-assembling svc_call.s...
 assembling startup_LPC17xx.s...
 compiling _kernelCore.c...
 src\_kernelCore.h(14): warning:  #1295-D: Deprecated declaration osKernelStart - give arg types
@@ -92,10 +92,10 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE:5.5.0
 
    * Component: Keil::Device:Startup:1.0.0
-      Source file:   Device\Source\ARM\startup_LPC17xx.s
       Source file:   Device\Source\system_LPC17xx.c
-      Include file:  RTE_Driver\Config\RTE_Device.h
       Include file:  Device\Include\LPC17xx.h
+      Source file:   Device\Source\ARM\startup_LPC17xx.s
+      Include file:  RTE_Driver\Config\RTE_Device.h
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

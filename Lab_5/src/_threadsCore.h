@@ -14,6 +14,6 @@ uint32_t* getNewThreadStack (uint32_t offset); //returns address of new a PSP wi
 
 void idleThread(void); //thread function for the idle thread
 
-int osThreadNew(void (*fun_ptr)(void), int timeSlice, int sleepTime, int mutexID); //initializes the thread stack and its initial context in memory
+int osThreadNew(void (*fun_ptr)(void), int timeSlice, int sleepTime, int waitMutex); //initializes the thread stack and its initial context in memory
 
 #endif

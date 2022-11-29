@@ -19,8 +19,16 @@ extern int threadCurr;
 //thread functions
 void thread1(){
 	while(1){
+		
+		osAcquireMutex(0);
+		osAcquireMutex(1);
 		thread1Call++;
 		printf("Running thread 1. Call count: %d\n", thread1Call);
+		osReleaseMutex(0);
+		
+		if (thread1Call % 2 == 0){
+			osReleaseMutex(1);
+		}
 		
 		osYield();
 	}
@@ -28,16 +36,25 @@ void thread1(){
 
 void thread2(){
 	while(1){
+		
+		osAcquireMutex(0);
 		thread2Call++;
 		printf("Running thread 2. Call count: %d\n", thread2Call);
-
+		osReleaseMutex(0);
+		
 		osYield(); 
 	}
 }
 
 void thread3(){
 	while(1){
+		
+		osAcquireMutex(1);
 		thread3Call++;
+		printf("Running thread 3. Call count: %d\n", thread3Call);
+		osReleaseMutex(1);
+		
+		osYield();
 	}
 }
 
@@ -51,11 +68,15 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, TIMESLICE_DEFAULT, 0, -1); //will sleep
-	osThreadNew(thread2, TIMESLICE_DEFAULT, 3000, -1); //will sleep
-	osThreadNew(thread3, TIMESLICE_DEFAULT, 0, -1); //will be pre-empted
+	osThreadNew(thread1, TIMESLICE_DEFAULT, 0, -1);
+	osThreadNew(thread2, TIMESLICE_DEFAULT, 0, -1); 
+	osThreadNew(thread3, TIMESLICE_DEFAULT, 0, -1); 
 	
 	osThreadNew(idleThread, TIMESLICE_IDLE, 0, -1); //always initialize last
+	
+	osCreateMutex(); //UART
+	osCreateMutex(); //GLOBAL_X
+	osCreateMutex(); //LEDS
 	
 	//Initialize frequency of SysTick_Handler
 	SysTick_Config(SystemCoreClock/1000);

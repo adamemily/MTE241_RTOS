@@ -59,7 +59,7 @@ uint32_t* getNewThreadStack (uint32_t offset){
 
 
 //Initializes the thread stack and its initial context in memory
-int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime, int mutexID){
+int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime, int waitMutex){
 	++numThreads;
 	int stackID = numThreads-1;
 	
@@ -82,7 +82,7 @@ int osThreadNew(void (*fun_ptr)(void), int timeslice, int sleepTime, int mutexID
 	threadCollection[stackID].timer = timeslice;
 	threadCollection[stackID].timeslice = timeslice;
 	threadCollection[stackID].sleepTime = sleepTime;
-	threadCollection[stackID].mutexID = mutexID;
+	threadCollection[stackID].waitMutex = waitMutex;
 
 	//set the values for what the "running" thread will populate the registers with
 	*(--threadCollection[stackID].TSP) = 1<<24; //xPSR

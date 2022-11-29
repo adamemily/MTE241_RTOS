@@ -15,7 +15,9 @@ bool osKernelStart(); //start running the kernel, i.e. the OS
 
 void osCreateMutex();
 
-void osAcquireMutex(int threadID, int mutexID);
+void osAcquireMutex(int mutexID);
+
+void osReleaseMutex(int mutexID);
 
 void osLoadFirst(); //called by the kernel to start running the very first thread, before getting into context switching
 	 

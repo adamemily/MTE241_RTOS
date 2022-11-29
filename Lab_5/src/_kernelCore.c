@@ -9,7 +9,6 @@ int threadCurr = 0;
 int numMutex = 0;
 extern int idleIndex;
 bool leaveIdle = false;
-bool canInterrupt = false;
 
 
 //set priority of the PendSV interrupt
@@ -42,54 +41,74 @@ void osCreateMutex(){
 	numMutex++;
 }
 
-void osAcquireMutex(int threadID, int mutexID){
+void osAcquireMutex(int mutexID){
 	if (mutexCollection[mutexID].available == true){
 		//if running thread can acquire the mutex, proceed
 		mutexCollection[mutexID].available = false;
-		mutexCollection[mutexID].currentOwner = threadID;
+		mutexCollection[mutexID].currentOwner = threadCurr;
 		
+		printf("Mutex %d acquired by Thread %d\n", mutexID, threadCurr+1);
 	}
-	else{
-		threadCollection[threadID].status = BLOCKED;
-		threadCollection[threadID].timer = 0;
+	else if(mutexCollection[mutexID].available == false && mutexCollection[mutexID].currentOwner != threadCurr){
+		threadCollection[threadCurr].status = BLOCKED;
+		threadCollection[threadCurr].timer = 0;
+		threadCollection[threadCurr].waitMutex = mutexID;
+		
+		printf("Mutex %d already claimed by Thread %d. Set Thread %d to blocked\n", mutexID, mutexCollection[mutexID].currentOwner+1, threadCurr+1);
 		
 		//switch out thread
 		__ASM("SVC #1");
 	}
+	else{
+		printf("Repeated claim of mutex %d\n", mutexID);
+	}
 }
 
-void osReleaseMutex(int threadID, int mutexID){
-	
-	
+void osReleaseMutex(int mutexID){
 	int longestWait = 0;
 	bool isFound = false;
 	
-	for (int i = 0; i < numThreads; i++){
-		if (threadCollection[i].status == BLOCKED){
-			isFound = true;
-			longestWait = i;
+	if (mutexCollection[mutexID].currentOwner == threadCurr){
+	
+		for (int i = 0; i < numThreads; i++){
+			if (threadCollection[i].status == BLOCKED && threadCollection[i].waitMutex == mutexID){
+				isFound = true;
+				longestWait = i;
+				
+				printf("Found Thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
+			}
+			
+			//if true, start looking for the longestWait
+			if (isFound == true && threadCollection[i].timer < threadCollection[longestWait].timer){
+				longestWait = i;
+				
+				printf("Found Thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
+			}
+			
+			//else, do nothing
+			//return to main and continue thread
 		}
-		
-		//if true, start looking for the longestWait
-		if (isFound == true && threadCollection[i].timer < threadCollection[longestWait].timer){
-			longestWait = i;
+		if (isFound == true){
+			threadCollection[longestWait].status = WAITING;
+			threadCollection[longestWait].timer = threadCollection[longestWait].timeslice;
+			threadCollection[longestWait].waitMutex = -1;
+			
+			mutexCollection[mutexID].available = false;
+			mutexCollection[mutexID].currentOwner = longestWait;
+			
+			printf("Give Mutex %d to Thread %d\n", mutexID, longestWait+1);
 		}
-		
-		//else, do nothing
-		//return to main and continue thread
-	}
-	if (isFound == true){
-		threadCollection[longestWait].status = WAITING;
-		threadCollection[longestWait].timer = threadCollection[longestWait].timeslice;
-		
-		mutexCollection[mutexID].available = false;
-		mutexCollection[mutexID].currentOwner = longestWait;
-	}
-	else{
-		mutexCollection[mutexID].available = true;
-		mutexCollection[mutexID].currentOwner = -1;
+		else{
+			mutexCollection[mutexID].available = true;
+			mutexCollection[mutexID].currentOwner = -1;
+			
+			printf("No blocked threads for Mutex %d, is now available\n", mutexID);
+		}
 	}
 	
+	else{
+		printf("naughty naughty\n");
+	}
 }
 
 
@@ -135,15 +154,16 @@ void scheduler(void){
 }
 
 void SysTick_Handler(void){
-	//decrement running timeslice
-	--threadCollection[threadCurr].timer;
 	//printf("thread num %d, timer: %d\n", threadCurr+1, threadCollection[threadCurr].timer);
 	
 	//decrement sleep timers
 	for(int i = 0; i < numThreads; i++){
-		if(threadCollection[i].status == SLEEPING && i != threadCurr)
+		if(threadCollection[i].status != WAITING){
+			--threadCollection[threadCurr].timer;
+		}
+		
+		if(threadCollection[i].status == SLEEPING)
 		{
-			--threadCollection[i].timer;
 			/*if(threadCollection[i].timer % 50 == 0){
 				printf("Thread %d sleeptime: %d \n", (i+1), threadCollection[i].timer);
 			}*/
@@ -161,9 +181,9 @@ void SysTick_Handler(void){
 	}
 	
 	//if timeslice of running thread is up, proceed with task-switching
-	if(threadCollection[threadCurr].timer <= 0 || leaveIdle == true)
+	if((threadCollection[threadCurr].timer <= 0 && threadCollection[threadCurr].status != BLOCKED) || leaveIdle == true)
 	{
-		printf("Thread timer complete\n");
+		printf("Thread %d timer complete\n", threadCurr+1);
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4); //decrement PSP only 8 locations lower, since the hardware registers remain on the stack
 		//prepare current thread to sleep if can sleep
 		if(threadCollection[threadCurr].sleepTime != 0){
@@ -196,6 +216,7 @@ void SVC_Handler_Main(uint32_t *svc_args)
 	{
 		//move TSP of the running thread 16 memory locations lower, so that next time the thread loads the 16 context registers, we end at the same PSP
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
+
 		//if the thread is able to sleep, set it to sleep
 		if(threadCollection[threadCurr].sleepTime != 0){
 			threadCollection[threadCurr].status = SLEEPING;
@@ -211,11 +232,10 @@ void SVC_Handler_Main(uint32_t *svc_args)
 		ICSR |= 1<<28;
 		__asm("isb");
 	}
+	
 	if(call == 1){ //from thread blocked in osAcquireMutex()
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
 		scheduler();
-		
-		
 		
 		ICSR |= 1<<28;
 		__asm("isb");
