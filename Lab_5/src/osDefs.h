@@ -15,12 +15,12 @@
 #define SLEEPING 2
 #define BLOCKED 3
 
-#define TIMESLICE_DEFAULT 5000
+#define TIMESLICE_DEFAULT 1000
 #define TIMESLICE_IDLE 500
 
 #define UART 0
-#define globalX 1
-#define LEDs 2
+#define GLOBAL_X 1
+#define LEDS 2
 
 //define thread struct
 typedef struct{
