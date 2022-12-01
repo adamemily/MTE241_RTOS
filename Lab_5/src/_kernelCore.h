@@ -13,11 +13,11 @@ void kernelInit(void); //initialize memory structures and interrupts necessary t
 
 bool osKernelStart(); //start running the kernel, i.e. the OS
 
-void osCreateMutex();
+void osCreateMutex(); //create a new mutex in the mutex struct array
 
-void osAcquireMutex(int mutexID);
+void osAcquireMutex(int mutexID); //determine if the thread is allowed to run otherwise block
 
-void osReleaseMutex(int mutexID);
+void osReleaseMutex(int mutexID); //make mutex available and/or give it to the next blocked thread
 
 void osLoadFirst(); //called by the kernel to start running the very first thread, before getting into context switching
 	 

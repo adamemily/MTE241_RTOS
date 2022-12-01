@@ -21,19 +21,19 @@ extern int threadCurr;
 void thread1(){
 	while(1){
 		//CASE 1
-		/*
 		osAcquireMutex(UART);
 		thread1Call++;
 		printf("Running thread 1. Call count: %d\n", thread1Call);
 		osReleaseMutex(UART);
-		*/
 		
 		//CASE 2
+		/*
 		osAcquireMutex(GLOBAL_X);
 		x++;
 		printf("Running thread 1. x = %d\n", x);
 		osReleaseMutex(GLOBAL_X);
-	
+		*/
+		
 		osYield();
 	}
 }
@@ -41,14 +41,14 @@ void thread1(){
 void thread2(){
 	while(1){
 		//CASE 1
-		/*
 		osAcquireMutex(UART);
 		thread2Call++;
 		printf("Running thread 2. Call count: %d\n", thread2Call);
 		osReleaseMutex(UART);
-		*/
+		osYield(); 
 		
 		//CASE 2
+		/*
 		osAcquireMutex(GLOBAL_X);
 		osAcquireMutex(LEDS);
 		
@@ -57,8 +57,7 @@ void thread2(){
 		
 		osReleaseMutex(LEDS);
 		osReleaseMutex(GLOBAL_X);
-		
-		//osYield(); 
+		*/
 	}
 }
 
@@ -66,19 +65,20 @@ void thread3(){
 	while(1){
 		
 		//CASE 1
-		/*
 		osAcquireMutex(UART);
 		thread3Call++;
 		printf("Running thread 3. Call count: %d\n", thread3Call);
 		osReleaseMutex(UART);
-		*/
+		
+		osYield(); 
 		
 		//CASE 2
+		/*
 		osAcquireMutex(LEDS);
 		LED_display(0x71);
 		printf("Running thread 3.\n");
 		osReleaseMutex(LEDS);
-		//osYield();
+		*/
 	}
 }
 
@@ -87,6 +87,7 @@ int main( void )
 	SystemInit();
 	printf("\nRunning L-OS-S...\r\n");
 	
+	//Clear all LEDs
 	LED_setup();
 	LED_clear(0);
 	LED_clear(1);
@@ -101,12 +102,13 @@ int main( void )
 	kernelInit();
 
 	//Initialize each thread
-	osThreadNew(thread1, TIMESLICE_DEFAULT, 0, -1);
-	osThreadNew(thread2, TIMESLICE_DEFAULT, 0, -1); 
-	osThreadNew(thread3, TIMESLICE_DEFAULT, 0, -1); 
+	osThreadNew(thread1, TIMESLICE_DEFAULT, 0);
+	osThreadNew(thread2, TIMESLICE_DEFAULT, 0); 
+	osThreadNew(thread3, TIMESLICE_DEFAULT, 0); 
 	
-	osThreadNew(idleThread, TIMESLICE_IDLE, 0, -1); //always initialize last
+	osThreadNew(idleThread, TIMESLICE_IDLE, 0); //always initialize last
 	
+	//Create each mutex
 	osCreateMutex(); //UART
 	osCreateMutex(); //GLOBAL_X
 	osCreateMutex(); //LEDS

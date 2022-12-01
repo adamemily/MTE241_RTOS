@@ -34,29 +34,32 @@ bool osKernelStart(){
 	return false; //once called, function should not end unless something went wrong in OS
 }
 
+//create a new mutex in the mutex struct array
 void osCreateMutex(){
 	mutexCollection[numMutex].available = true;
-	mutexCollection[numMutex].currentOwner = -1;
+	mutexCollection[numMutex].currentOwner = NONE; 
 
 	numMutex++;
 }
 
+//determine if the thread is allowed to run otherwise block
 void osAcquireMutex(int mutexID){
+	//if running thread can acquire the mutex, then acquire and proceed running thread
 	if (mutexCollection[mutexID].available == true){
-		//if running thread can acquire the mutex, proceed
 		mutexCollection[mutexID].available = false;
 		mutexCollection[mutexID].currentOwner = threadCurr;
 		
 		printf("Mutex %d acquired by Thread %d\n", mutexID, threadCurr+1);
 	}
+	//if the mutex is already claimed by another thread, add this thread to the blocked list and switch it out
 	else if(mutexCollection[mutexID].available == false && mutexCollection[mutexID].currentOwner != threadCurr){
 		threadCollection[threadCurr].status = BLOCKED;
-		threadCollection[threadCurr].timer = 0;
+		threadCollection[threadCurr].timer = 0; //start counting time blocked
 		threadCollection[threadCurr].waitMutex = mutexID;
 		
 		printf("Mutex %d already claimed by Thread %d. Set Thread %d to blocked\n", mutexID, mutexCollection[mutexID].currentOwner+1, threadCurr+1);
 		
-		//switch out thread
+		//switch out thread, by a mutex yield
 		__ASM("SVC #1");
 	}
 	else{
@@ -64,13 +67,16 @@ void osAcquireMutex(int mutexID){
 	}
 }
 
+//make mutex available and/or give it to the next blocked thread
 void osReleaseMutex(int mutexID){
 	int longestWait = 0;
 	bool isFound = false;
 	
+	//do not do release mutex sequence if called by a thread that is not the mutex owner
 	if (mutexCollection[mutexID].currentOwner == threadCurr){
 	
 		for (int i = 0; i < numThreads; i++){
+			//look for at least one thread blocked by the current mutex
 			if (threadCollection[i].status == BLOCKED && threadCollection[i].waitMutex == mutexID){
 				isFound = true;
 				longestWait = i;
@@ -78,36 +84,35 @@ void osReleaseMutex(int mutexID){
 				printf("Found Thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
 			}
 			
-			//if true, start looking for the longestWait
+			//if found, start looking for the thread that has been waiting the longest
 			if (isFound == true && threadCollection[i].timer < threadCollection[longestWait].timer){
 				longestWait = i;
 				
 				printf("Found Thread %d. Timer: %d\n", i+1, threadCollection[i].timer);
 			}
-			
-			//else, do nothing
-			//return to main and continue thread
 		}
-		if (isFound == true){
+		if (isFound == true){ 
+			//remove longestWait thread from the blocked queue, so that it is in the round-robin next time scheduler() is called
 			threadCollection[longestWait].status = WAITING;
 			threadCollection[longestWait].timer = threadCollection[longestWait].timeslice;
-			threadCollection[longestWait].waitMutex = -1;
+			threadCollection[longestWait].waitMutex = NONE;
 			
+			//give longestWait thread the mutex
 			mutexCollection[mutexID].available = false;
 			mutexCollection[mutexID].currentOwner = longestWait;
 			
 			printf("Give Mutex %d to Thread %d\n", mutexID, longestWait+1);
 		}
-		else{
+		else{ //if no blocked threads, just make the mutex available
 			mutexCollection[mutexID].available = true;
-			mutexCollection[mutexID].currentOwner = -1;
+			mutexCollection[mutexID].currentOwner = NONE;
 			
 			printf("No blocked threads for Mutex %d, is now available\n", mutexID);
 		}
 	}
 	
 	else{
-		printf("naughty naughty\n");
+		printf("Thread %d does not own mutex %d. Will not release.\n", threadCurr, mutexID);
 	}
 }
 
@@ -156,7 +161,7 @@ void scheduler(void){
 void SysTick_Handler(void){
 	//printf("thread num %d, timer: %d\n", threadCurr+1, threadCollection[threadCurr].timer);
 	
-	//decrement sleep timers
+	//decrement the running thread's timeslice, sleep timers, and blocked timers
 	for(int i = 0; i < numThreads; i++){
 		if(threadCollection[i].status != WAITING){
 			--threadCollection[threadCurr].timer;
@@ -233,7 +238,7 @@ void SVC_Handler_Main(uint32_t *svc_args)
 		__asm("isb");
 	}
 	
-	if(call == 1){ //from thread blocked in osAcquireMutex()
+	if(call == 1){ //from thread being blocked in osAcquireMutex()
 		threadCollection[threadCurr].TSP = (uint32_t*)(__get_PSP()-8*4);
 		scheduler();
 		

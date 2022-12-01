@@ -18,6 +18,7 @@
 #define TIMESLICE_DEFAULT 1000
 #define TIMESLICE_IDLE 500
 
+#define NONE -1
 #define UART 0
 #define GLOBAL_X 1
 #define LEDS 2
